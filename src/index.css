@@ -2,23 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --color-text-base: #334155;
-    --color-text-title: #0f172a;
-    --color-text-muted: #64748b;
-    --color-fill: #f8fafc;
-    --color-bg: #fff;
-  }
-  .dark {
-    --color-text-base: #cbd5e1;
-    --color-text-title: #f8fafc;
-    --color-text-muted: #64748b;
-    --color-fill: #20222d;
-    --color-bg: #191b24;
-  }
-}
-
 /* Push Footer to the bottom */
 #root {
   @apply flex flex-col  min-h-[calc(100vh-4rem*2)];
@@ -40,7 +23,7 @@ code {
 }
 
 .active {
-  @apply text-sky-500;
+  @apply before:absolute before:bg-sky-500 before:h-7 before:w-2 before:left-0;
 }
 
 ::selection {

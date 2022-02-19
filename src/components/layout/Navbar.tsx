@@ -13,18 +13,15 @@ const Navbar = () => {
   const menuHandler = () => setShowMenu(!showMenu);
 
   return (
-    <div className=' bg-transparent flex items-center rounded-xl h-[64px] z-20'>
-      <Container className='flex flex-col align-middle md: justify-between  md:flex-row'>
+    <div className='flex items-center rounded-xl h-[96px] z-20'>
+      <div className='w-full px-14 flex flex-col align-middle md: justify-between  md:flex-row'>
         <div className='flex justify-between align-middle w-full'>
           <Link to={'/'} className='flex items-center h-full'>
-            {/* <img
-              className='w-[1.5rem] h-auto mr-2 md:w-[2rem] md:mr-3 '
-              src='img/logo.png'
+            <img
+              className='w-[6rem] h-auto md:w-[10rem] '
+              src='images/logo.png'
               alt='logo'
-            /> */}
-            <Text as='h4' className='text-base md:text-xl'>
-              Anime Wiki
-            </Text>
+            />
           </Link>
 
           <button
@@ -43,18 +40,18 @@ const Navbar = () => {
         >
           <NavLink
             to='/'
-            className='mb-4 md:mb-0 text-title text-md font-semibold mx-4 cursor-pointer transition hover:text-primary active:text-primary'
+            className='relative px-5 mb-4 md:mb-0 text-title text-md font-bold uppercase text-xl font-title mx-4 transition hover:before:h-7'
           >
             Home
           </NavLink>
           <NavLink
             to='/categories'
-            className='mb-4 md:mb-0 text-title text-md font-semibold mx-4 cursor-pointer transition hover:text-primary'
+            className='relative px-5 mb-4 md:mb-0 text-title text-md font-bold uppercase text-xl font-title mx-4 transition hover:before:h-7'
           >
             Categories
           </NavLink>
         </nav>
-      </Container>
+      </div>
     </div>
   );
 };

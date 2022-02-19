@@ -4,7 +4,7 @@ import './button.css';
 
 // Initialize the Base Props
 interface BaseProps {
-  children: ReactNode;
+  children: ReactNode | string;
   className?: string | '';
   size?: 'sm' | 'lg';
 }

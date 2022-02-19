@@ -15,9 +15,9 @@ const Hero = ({ heroType = 'heroMain', bgImage, children }: HeroProps) => {
 
   return (
     <div
-      className={`relative bg-slate-800 rounded-2xl mt-[-64px] ${heroHeight}  overflow-hidden z-0`}
+      className={`relative bg-slate-800 rounded-2xl mt-[-96px] ${heroHeight}  overflow-hidden z-0 shadow-slate-900 shadow-2xl`}
     >
-      <div className=' absolute w-full h-full bg-gradient-to-tr from-slate-900/50 to-sky-700/75 -z-10' />
+      <div className=' absolute w-full h-full bg-gradient-to-tr from-slate-900/95 to-sky-700/75 -z-10' />
       <div className=' absolute w-full bg-hero h-full bg-no-repeat bg-cover bg-center -z-20' />
       <div className='mt-[64px] h-[calc(100%-4rem)] '>{children}</div>
     </div>

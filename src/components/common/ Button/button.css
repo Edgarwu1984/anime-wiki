@@ -1,9 +1,13 @@
 .btn {
-  @apply items-center px-[1.3em] py-[.5em] font-semibold text-sm rounded-md text-base bg-slate-200 hover:bg-slate-300 transition ease-in-out duration-150  dark:bg-slate-700 dark:hover:bg-slate-800;
+  @apply rounded-full bg-slate-500 px-4 py-2 font-bold;
 }
 
 .btn-primary {
-  @apply bg-primary text-white transition ease-in-out hover:bg-indigo-500 hover:text-white dark:bg-primary dark:hover:bg-indigo-500;
+  @apply text-slate-900 bg-sky-500 border-[1px] border-sky-500 transition hover:bg-slate-900 hover:text-sky-500 hover:border-[1px] hover:border-sky-500;
+}
+
+.btn-outline {
+  @apply bg-slate-900 text-sky-500 border-[1px] border-sky-500 transition hover:bg-sky-500 hover:text-slate-900;
 }
 
 .btn-sm {

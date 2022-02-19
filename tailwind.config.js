@@ -7,6 +7,7 @@ module.exports = {
       },
       backgroundImage: {
         hero: "url('/public/images/bg_main.png')",
+        body: "url('/public/images/bg_body.png')",
       },
     },
   },
