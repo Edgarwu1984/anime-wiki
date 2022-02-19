@@ -55,7 +55,7 @@ const Button = (props: ButtonProps) => {
       )}
       {as === 'link' && (
         <Link
-          className={`${className} ${btnSizeClassName}`}
+          className={`btn ${className} ${btnSizeClassName}`}
           size={size}
           {...(rest as ButtonAsLink)}
         >
@@ -64,7 +64,7 @@ const Button = (props: ButtonProps) => {
       )}
       {as === 'externalLink' && (
         <a
-          className={`${className} ${btnSizeClassName}`}
+          className={`btn ${className} ${btnSizeClassName}`}
           target='_blank'
           rel='noreferrer'
           size={size}

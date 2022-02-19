@@ -1,8 +1,6 @@
 import { ReactNode } from 'react';
-import Container from '../common/Container';
-import Text from '../common/Text';
+// Components
 import Footer from './Footer';
-import Hero from './Hero';
 import Navbar from './Navbar';
 
 type Props = {

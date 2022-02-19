@@ -14,7 +14,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  @apply bg-slate-900 text-slate-50 px-[1rem] py-[1rem] md:px-[4rem] md:py-[2rem] lg:px-[8rem] lg:py-[4rem];
+  @apply bg-slate-900 text-slate-50 p-2 md:p-8 lg:p-14;
 }
 
 code {
