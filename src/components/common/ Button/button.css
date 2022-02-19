@@ -1,0 +1,15 @@
+.btn {
+  @apply items-center px-[1.3em] py-[.5em] font-semibold text-sm rounded-md text-base bg-slate-200 hover:bg-slate-300 transition ease-in-out duration-150  dark:bg-slate-700 dark:hover:bg-slate-800;
+}
+
+.btn-primary {
+  @apply bg-primary text-white transition ease-in-out hover:bg-indigo-500 hover:text-white dark:bg-primary dark:hover:bg-indigo-500;
+}
+
+.btn-sm {
+  font-size: small;
+}
+
+.btn-lg {
+  font-size: x-large;
+}
