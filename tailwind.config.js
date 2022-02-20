@@ -8,6 +8,8 @@ module.exports = {
       backgroundImage: {
         hero: "url('/public/images/bg_main.png')",
         body: "url('/public/images/bg_body.png')",
+        footer: "url('/public/images/bg_footer.png')",
+        categories: "url('/public/images/bg_categories.png')",
       },
     },
   },

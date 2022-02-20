@@ -12,9 +12,11 @@ const Navbar = () => {
 
   return (
     <div
-      className={`flex items-center rounded-xl py-4 z-20 w-full ${
-        showMenu && `bg-slate-900`
-      }`}
+      className={
+        showMenu
+          ? `absolute top-0 bg-slate-900 flex items-center rounded-2xl py-4 z-20 w-full`
+          : `absolute top-0 bg-transparent flex items-center rounded-2xl py-4 z-20 w-full`
+      }
     >
       <div className='w-full px-14 flex flex-col align-middle md: justify-between  md:flex-row'>
         <div className='flex justify-between align-middle w-[full] md:w-fit'>
@@ -36,8 +38,8 @@ const Navbar = () => {
         <nav
           className={
             !showMenu
-              ? 'hidden transition-all md:flex md:items-center md:flex-row md:align-middle md:py-0 md:justify-end md:w-[100%]'
-              : 'transition flex bg-slate-900 h-fit w-full flex-col justify-center items-center p-10'
+              ? 'hidden transition md:flex md:items-center md:flex-row md:align-middle md:py-0 md:justify-end md:w-[100%]'
+              : 'transition flex h-fit w-full flex-col justify-center items-center p-10'
           }
         >
           <NavLink

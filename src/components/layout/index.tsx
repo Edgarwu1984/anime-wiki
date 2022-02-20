@@ -13,7 +13,7 @@ const Layout = ({ pageTitle, children }: Props) => {
 
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> */}
       {children}
       <Footer />
     </>
