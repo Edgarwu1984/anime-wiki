@@ -38,27 +38,23 @@ const Navbar = () => {
         <nav
           className={
             !showMenu
-              ? 'hidden transition md:flex md:items-center md:flex-row md:align-middle md:py-0 md:justify-end md:w-[100%]'
+              ? 'hidden transition md:flex md:items-center md:flex-row md:align-middle md:py-0 md:justify-end md:w-[100%] md:space-x-5'
               : 'transition flex h-fit w-full flex-col justify-center items-center p-10'
           }
         >
           <NavLink
             to='/'
-            className='relative px-5 mb-10 md:mb-0 text-title text-base lg:text-md font-bold uppercase font-title  transition hover:before:h-7'
+            className='relative mb-10 pl-2 md:mb-0 text-title text-base lg:text-md font-bold uppercase font-title transition '
           >
             Home
           </NavLink>
           <NavLink
             to='/categories'
-            className='relative px-5 mb-10 md:mb-0 text-title text-base lg:text-md font-bold uppercase font-title transition hover:before:h-7'
+            className='relative mb-10 pl-2 md:mb-0 text-title text-base lg:text-md font-bold uppercase font-title transition '
           >
             Categories
           </NavLink>
-          <Button
-            as='link'
-            to='/login'
-            className='btn-outline mx-4 mb-6 md:mb-0'
-          >
+          <Button as='link' to='/login' className='btn-outline mb-6 md:mb-0'>
             Login
           </Button>
           <Button as='link' to='/register' className='btn-primary'>
