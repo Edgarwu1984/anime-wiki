@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+seeder/node_modules
 /.pnp
 .pnp.js
 
@@ -44,3 +45,5 @@ yarn-error.log*
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+seeder/credentials.json

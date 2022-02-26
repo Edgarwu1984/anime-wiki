@@ -1,4 +1,4 @@
-import { FC, useRef } from 'react';
+import { useRef } from 'react';
 // Components
 import Button from 'src/components/common/ Button';
 import Container from 'src/components/common/Container';
@@ -6,10 +6,11 @@ import Text from 'src/components/common/Text';
 import Layout from 'src/components/layout';
 import Hero from 'src/components/layout/Hero';
 import SectionTitle from 'src/components/SectionTitle';
+import AnimeList from 'src/components/AnimeList';
 // Icons
 import { HiArrowSmRight } from 'react-icons/hi';
 
-const HomePage: FC = () => {
+const HomePage = () => {
   // Anchor Link
   const anchorRef = useRef<null | HTMLDivElement>(null);
   const navToHash = () => {
@@ -45,6 +46,7 @@ const HomePage: FC = () => {
       <Container>
         <section ref={anchorRef}>
           <SectionTitle title="Iconic 80's" />
+          <AnimeList />
         </section>
       </Container>
     </Layout>

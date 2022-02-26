@@ -19,7 +19,7 @@ const Hero = ({ heroType = 'heroMain', bgImage, children }: HeroProps) => {
           <div
             className={`${bgImage} absolute w-full h-full bg-no-repeat bg-cover bg-center -z-20`}
           />
-          <div className='mt-[64px] h-[calc(100%-4rem)] px-2 md:px-4 lg:px-0'>
+          <div className='mt-[64px] h-[calc(100%-4rem)] px-2 md:px-4'>
             {children}
           </div>
         </div>
