@@ -1,21 +1,34 @@
 import React, { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/app/store';
-import { getAnimes } from 'src/features/anime/animeSlice';
-import animeService from 'src/Services/animeService';
-import Card from './card';
-import Text from './common/Text';
+import { getAnimes, getTopAnimes } from 'src/features/anime/animeSlice';
+import Card from '../Card';
+import Text from '../common/Text';
+import CardSkeleton from '../Loader/CardSkeleton';
 
-const AnimeList = () => {
+type AnimeListProps = {
+  listType: '80s' | '90s' | 'top';
+};
+
+const AnimeList = ({ listType }: AnimeListProps) => {
+  const cardSkeletonList = [1, 2, 3, 4];
   const dispatch = useAppDispatch();
   const { animes, status } = useAppSelector(state => state.anime);
   useEffect(() => {
-    dispatch(getAnimes());
-    animeService.getAnime('3427e440-9637-11ec-ae80-d16d71abab38');
-  }, [dispatch]);
+    if (listType === 'top') {
+      dispatch(getTopAnimes());
+    } else {
+      dispatch(getAnimes());
+    }
+  }, [dispatch, listType]);
+
   return (
-    <div className='py-6'>
+    <div>
       {status === 'loading' ? (
-        <Text>Loading...</Text>
+        <div className='grid justify-items-center gap-12 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 '>
+          {cardSkeletonList.map((_, i) => (
+            <CardSkeleton key={i} />
+          ))}
+        </div>
       ) : animes.length === 0 ? (
         <div>
           <Text>No Animes</Text>

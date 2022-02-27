@@ -7,7 +7,7 @@ type SectionTitleProps = {
 
 const SectionTitle = ({ title = 'Section Title' }: SectionTitleProps) => {
   return (
-    <Text as='h4' className='text-sky-500 font-title'>
+    <Text as='h4' className='text-sky-500 font-title mb-6'>
       {title}
     </Text>
   );

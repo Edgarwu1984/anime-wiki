@@ -44,6 +44,23 @@ export const getAnime = createAsyncThunk(
   }
 );
 
+export const getTopAnimes = createAsyncThunk(
+  'animes/getTopAnimes',
+  async (_, thunkAPI) => {
+    try {
+      return await AnimeService.getTopAnimes();
+    } catch (error: any) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 const initialState = {
   animes: [],
   anime: {
@@ -88,6 +105,17 @@ export const animeSlice = createSlice({
         state.animes = action.payload;
       })
       .addCase(getAnimes.rejected, (state, action) => {
+        state.status = 'error';
+        state.message = action.payload as string;
+      })
+      .addCase(getTopAnimes.pending, state => {
+        state.status = 'loading';
+      })
+      .addCase(getTopAnimes.fulfilled, (state, action) => {
+        state.status = 'idle';
+        state.animes = action.payload;
+      })
+      .addCase(getTopAnimes.rejected, (state, action) => {
         state.status = 'error';
         state.message = action.payload as string;
       })

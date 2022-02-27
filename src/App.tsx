@@ -2,7 +2,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import CategoriesPage from './pages/categories';
 import AnimePage from './pages/categories/AnimePage';
-import HomePage from './pages/HomePage';
+import HomePage from './pages/home';
 
 function App() {
   return (

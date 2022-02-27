@@ -17,9 +17,8 @@ body {
   @apply bg-slate-900 text-slate-50 p-2 md:p-8 lg:p-14;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+section {
+  @apply mb-10;
 }
 
 .active {

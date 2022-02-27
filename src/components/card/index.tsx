@@ -1,8 +1,10 @@
-import React from 'react';
-import { Anime } from 'src/types/AnimeTypes';
-import Text from '../common/Text';
-import { FaRegHeart } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+// Components
+import Text from 'src/components/common/Text';
+// React Icons
+import { FaRegHeart, FaRegClock } from 'react-icons/fa';
+// Types
+import { Anime } from 'src/types/AnimeTypes';
 
 type CardProps = Omit<
   Anime,
@@ -28,11 +30,11 @@ const Card = ({
     <Link
       to={`/categories/${id}`}
       key={id}
-      className='card w-60 flex flex-col '
+      className='card w-60 flex flex-col rounded-2xl transition hover:bg-slate-800'
     >
       <div className='card-image-wrap w-full h-[20rem] rounded-2xl overflow-hidden'>
         <img
-          className='card-image object-cover h-full w-full'
+          className='card-image object-cover w-full transition-transform hover:scale-[105%]'
           src={`${coverImage}`}
           alt={slug}
         />
@@ -44,7 +46,10 @@ const Card = ({
           </Text>
         </div>
         <div className='card-details flex justify-between text-slate-400'>
-          <Text>{releaseYear}</Text>
+          <div className='flex items-center space-x-2'>
+            <FaRegClock />
+            <Text>{releaseYear}</Text>
+          </div>
           <div className='flex items-center space-x-2'>
             <Text>{likes}</Text>
             <FaRegHeart />
