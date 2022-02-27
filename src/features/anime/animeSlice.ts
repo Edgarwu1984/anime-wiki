@@ -88,6 +88,12 @@ export const animeSlice = createSlice({
   initialState,
   reducers: {
     reset: state => (state = initialState),
+    setAnimes: (
+      state: InitialState,
+      action: PayloadAction<InitialState['animes']>
+    ) => {
+      state.animes = action.payload;
+    },
     setMessage: (
       state: InitialState,
       action: PayloadAction<InitialState['message']>
@@ -133,5 +139,5 @@ export const animeSlice = createSlice({
   },
 });
 
-export const { reset, setMessage } = animeSlice.actions;
+export const { reset, setAnimes, setMessage } = animeSlice.actions;
 export default animeSlice.reducer;

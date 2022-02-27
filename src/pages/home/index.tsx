@@ -1,4 +1,5 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 // Components
 import Button from 'src/components/common/ Button';
 import Container from 'src/components/common/Container';
@@ -10,8 +11,23 @@ import AnimeList from 'src/components/AnimeList';
 import FeatureCard from 'src/components/FeatureCard';
 // Icons
 import { HiArrowSmRight } from 'react-icons/hi';
+// Redux
+import { useAppDispatch, useAppSelector } from 'src/app/store';
+import { getTopAnimes } from 'src/features/anime/animeSlice';
+// Utils
+import ResetPagePosition from 'src/utils/resetPagePosition';
 
 const HomePage = () => {
+  const { pathname } = useLocation();
+  const dispatch = useAppDispatch();
+  const { animes, status } = useAppSelector(state => state.anime);
+
+  ResetPagePosition(pathname);
+
+  useEffect(() => {
+    dispatch(getTopAnimes());
+  }, [dispatch]);
+
   // Anchor Link
   const anchorRef = useRef<null | HTMLDivElement>(null);
   const navToHash = () => {
@@ -55,7 +71,7 @@ const HomePage = () => {
         </section>
         <section>
           <SectionTitle title='Top Rated' />
-          <AnimeList listType='top' />
+          <AnimeList data={animes} status={status} />
         </section>
       </Container>
     </Layout>

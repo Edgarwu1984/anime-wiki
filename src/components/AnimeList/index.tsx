@@ -1,25 +1,15 @@
-import React, { useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from 'src/app/store';
-import { getAnimes, getTopAnimes } from 'src/features/anime/animeSlice';
-import Card from '../Card';
-import Text from '../common/Text';
+import { Anime } from 'src/types/AnimeTypes';
+import Card from 'src/components/Card';
+import Text from 'src/components/common/Text';
 import CardSkeleton from '../Loader/CardSkeleton';
 
 type AnimeListProps = {
-  listType: '80s' | '90s' | 'top';
+  data: Anime[];
+  status: 'loading' | 'success' | 'error' | 'idle';
 };
 
-const AnimeList = ({ listType }: AnimeListProps) => {
+const AnimeList = ({ data, status }: AnimeListProps) => {
   const cardSkeletonList = [1, 2, 3, 4];
-  const dispatch = useAppDispatch();
-  const { animes, status } = useAppSelector(state => state.anime);
-  useEffect(() => {
-    if (listType === 'top') {
-      dispatch(getTopAnimes());
-    } else {
-      dispatch(getAnimes());
-    }
-  }, [dispatch, listType]);
 
   return (
     <div>
@@ -29,13 +19,25 @@ const AnimeList = ({ listType }: AnimeListProps) => {
             <CardSkeleton key={i} />
           ))}
         </div>
-      ) : animes.length === 0 ? (
-        <div>
-          <Text>No Animes</Text>
+      ) : data.length === 0 ? (
+        <div
+          className={`relative bg-slate-800 rounded-2xl h-[400px]  overflow-hidden z-0 `}
+        >
+          <div className=' absolute w-full h-full bg-gradient-to-tr from-slate-900/70 to-sky-700/25 -z-10' />
+          <img
+            src='/images/notfound.jpeg'
+            alt='not_found'
+            className='absolute w-full h-full left-0 top-0 -z-20 object-cover'
+          />
+          <div className='h-full flex items-center'>
+            <Text as='h2' className=' font-title mb-5 text-center w-full'>
+              No Animes Be Found
+            </Text>
+          </div>
         </div>
       ) : (
         <div className='grid justify-items-center gap-12 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 '>
-          {animes.map(anime => (
+          {data.map(anime => (
             <Card
               id={anime.id}
               key={anime.slug}

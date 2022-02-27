@@ -1,13 +1,19 @@
 import { ReactNode } from 'react';
-import Navbar from './Navbar';
+import Navbar from 'src/components/Layout/Navbar';
 
 type HeroProps = {
   children: ReactNode;
   heroType?: 'heroMain' | 'heroSub';
   bgImage?: string;
+  height?: string;
 };
 
-const Hero = ({ heroType = 'heroMain', bgImage, children }: HeroProps) => {
+const Hero = ({
+  heroType = 'heroMain',
+  bgImage,
+  height = '400px',
+  children,
+}: HeroProps) => {
   switch (heroType) {
     case 'heroMain':
       return (
@@ -30,7 +36,7 @@ const Hero = ({ heroType = 'heroMain', bgImage, children }: HeroProps) => {
     case 'heroSub':
       return (
         <div
-          className={`relative bg-slate-800 rounded-2xl h-[400px]   overflow-hidden z-0 shadow-slate-900 shadow-2xl`}
+          className={`relative bg-slate-800 rounded-2xl h-[${height}]   overflow-hidden z-0 shadow-slate-900 shadow-2xl`}
         >
           <Navbar />
           <div className=' absolute w-full h-full bg-gradient-to-tr from-slate-900/95 to-sky-700/75 -z-10' />
