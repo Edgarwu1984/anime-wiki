@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 // Components
-import Button from 'src/components/common/ Button';
+import Button from 'src/components/common/Button';
 import Container from 'src/components/common/Container';
 import Text from 'src/components/common/Text';
 import Layout from 'src/components/Layout';

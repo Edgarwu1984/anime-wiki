@@ -3,7 +3,7 @@ import { Link, NavLink } from 'react-router-dom';
 // React icons
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { FiX } from 'react-icons/fi';
-import Button from '../common/ Button';
+import Button from '../common/Button';
 
 const Navbar = () => {
   const [showMenu, setShowMenu] = useState(false);
