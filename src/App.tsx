@@ -5,6 +5,7 @@ import AnimePage from './pages/categories/AnimePage';
 import ResultsPage from './pages/categories/ResultsPage';
 import HomePage from './pages/home';
 import LoginPage from './pages/LoginPage';
+import SignUpPage from './pages/SignUpPage';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Routes>
           <Route path='/' element={<HomePage />} />
           <Route path='/login' element={<LoginPage />} />
+          <Route path='/register' element={<SignUpPage />} />
           <Route path='/categories' element={<CategoriesPage />} />
           <Route path='/categories/results' element={<ResultsPage />} />
           <Route path='/categories/:id' element={<AnimePage />} />

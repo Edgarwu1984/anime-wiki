@@ -6,14 +6,23 @@ import Text from 'src/components/common/Text';
 import { SignUpForm } from 'src/types/SignUpForm';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from 'src/app/store';
-import { loginUser } from 'src/features/user/userSlice';
-import MessageBox from 'src/components/MessageBox';
+import { registerUser } from 'src/features/user/userSlice';
 
-const LoginPage = () => {
+const SignUpPage = () => {
   const navigator = useNavigate();
   const validationSchema = Yup.object().shape({
+    username: Yup.string()
+      .required('Username is required')
+      .min(6, 'Username must be at least 6 characters')
+      .max(20, 'Username must not exceed 20 characters'),
     email: Yup.string().required('Email is required').email('Email is invalid'),
-    password: Yup.string().required('Password is required'),
+    password: Yup.string()
+      .required('Password is required')
+      .min(6, 'Password must be at least 6 characters')
+      .max(40, 'Password must not exceed 40 characters'),
+    confirmPassword: Yup.string()
+      .required('Confirm Password is required')
+      .oneOf([Yup.ref('password'), null], 'Confirm Password does not match'),
   });
 
   const dispatch = useAppDispatch();
@@ -37,7 +46,7 @@ const LoginPage = () => {
   const onSubmit = (formData: SignUpForm) => {
     const { username, email, password } = formData;
     console.log({ username, email, password });
-    dispatch(loginUser({ email, password }));
+    dispatch(registerUser({ username, email, password }));
     reset();
   };
 
@@ -58,11 +67,29 @@ const LoginPage = () => {
         >
           <div className='w-full flex flex-col justify-center items-center'>
             <Text as='h4' className='font-title text-sky-500'>
-              Login
+              Sign Up
             </Text>
-            {message && <MessageBox type='error' message={message} />}
           </div>
           <div className='w-[90%] lg:w-[80%] mx-auto'>
+            {/* Username Input */}
+            <div className='space-y-1 my-2'>
+              <Text
+                as='label'
+                htmlFor='username'
+                className='text-sky-500 font-semibold pl-4'
+              >
+                Username
+              </Text>
+              <input
+                className='w-full bg-slate-700 rounded-3xl px-4 py-2 border border-slate-900 focus:outline-none focus:border-sky-500 focus:ring-sky-500 placeholder:text-slate-500'
+                type='text'
+                placeholder='Username'
+                {...register('username')}
+              />
+              <Text as='label' className='text-red-500 text-sm pl-4'>
+                {errors.username && errors.username.message}
+              </Text>
+            </div>
             {/* Email Input */}
             <div className='space-y-1 my-2'>
               <Text
@@ -101,12 +128,31 @@ const LoginPage = () => {
                 {errors.password && errors.password.message}
               </Text>
             </div>
+            {/* Confirm Password */}
+            <div className='space-y-1 my-2'>
+              <Text
+                as='label'
+                htmlFor='confirm password'
+                className='text-sky-500 font-semibold pl-4'
+              >
+                Confirm Password
+              </Text>
+              <input
+                className='w-full bg-slate-700 rounded-3xl  px-4 py-2 border border-slate-900 focus:outline-none focus:border-sky-500 focus:ring-sky-500 placeholder:text-slate-500'
+                type='password'
+                placeholder='Password'
+                {...register('confirmPassword')}
+              />
+              <Text as='label' className='text-red-500 text-sm pl-4'>
+                {errors.confirmPassword && errors.confirmPassword.message}
+              </Text>
+            </div>
             {/* Submit Button */}
             <div className='space-y-4 pt-7'>
               <input
                 className='btn btn-primary w-full disabled:bg-sky-600 disabled:cursor-not-allowed disabled:hover:bg-sky-600 disabled:hover:text-slate-900'
                 type='submit'
-                value={status === 'loading' ? 'Pending....' : 'Login'}
+                value={status === 'loading' ? 'Pending....' : 'Register'}
                 disabled={status === 'loading' ? true : false}
               />
               <button
@@ -119,10 +165,10 @@ const LoginPage = () => {
           </div>
           <div className='flex justify-center items-center my-2'>
             <Text as='p' className='text-base text-slate-400 mr-2'>
-              Don't have has an account?
+              Already has an account?
             </Text>
-            <Link className='text-sky-500 font-semibold' to={'/register'}>
-              Sign Up
+            <Link className='text-sky-500 font-semibold' to={'/login'}>
+              Login
             </Link>
           </div>
           <img className='w-24 mx-auto' src='/images/logo.png' alt='logo' />
@@ -132,4 +178,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default SignUpPage;
