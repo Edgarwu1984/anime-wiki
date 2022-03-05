@@ -6,17 +6,18 @@ import {
   query,
   orderBy,
   limit,
-} from 'firebase/firestore';
-import { db } from 'src/config/db';
-import { Anime } from 'src/types/AnimeTypes';
+  updateDoc,
+} from "firebase/firestore";
+import { db } from "src/config/db";
+import { Anime } from "src/types/AnimeTypes";
 
 // Get all animes
 const getAnimes = async () => {
-  const ref = collection(db, 'anime_list');
+  const ref = collection(db, "anime_list");
 
   const snapshot = await getDocs(ref);
 
-  const data = snapshot.docs.map(doc => {
+  const data = snapshot.docs.map((doc) => {
     const id = doc.id;
     const data = doc.data();
     return { id, ...data };
@@ -27,12 +28,12 @@ const getAnimes = async () => {
 
 const getTopAnimes = async () => {
   const ref = query(
-    collection(db, 'anime_list'),
-    orderBy('likes', 'desc'),
+    collection(db, "anime_list"),
+    orderBy("likes", "desc"),
     limit(4)
   );
   const snapshot = await getDocs(ref);
-  const data = snapshot.docs.map(doc => {
+  const data = snapshot.docs.map((doc) => {
     const id = doc.id;
     const data = doc.data();
     return { id, ...data };
@@ -43,7 +44,7 @@ const getTopAnimes = async () => {
 
 // Get anime by ID
 const getAnime = async (id: string) => {
-  const ref = doc(db, 'anime_list', id);
+  const ref = doc(db, "anime_list", id);
 
   const snapshot = await getDoc(ref);
 
@@ -52,10 +53,20 @@ const getAnime = async (id: string) => {
   return data as Anime;
 };
 
+// Update anime by ID
+const updateAnime = async (id: string, data: Anime) => {
+  const ref = doc(db, "anime_list", id);
+
+  const newData = { ...data };
+
+  await updateDoc(ref, newData);
+};
+
 const AnimeService = {
   getAnimes,
   getAnime,
   getTopAnimes,
+  updateAnime,
 };
 
 export default AnimeService;

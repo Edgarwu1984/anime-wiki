@@ -7,8 +7,9 @@ import { useAppDispatch, useAppSelector } from "src/app/store";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { FiX } from "react-icons/fi";
 import { FaUser } from "react-icons/fa";
-import { HiDocumentAdd } from "react-icons/hi";
+import { BsFillBookmarkPlusFill } from "react-icons/bs";
 import { CgLogOut } from "react-icons/cg";
+import { IoMdArrowDropdown } from "react-icons/io";
 // Components
 import Button from "src/components/common/Button";
 
@@ -103,6 +104,7 @@ const Navbar = () => {
                       alt="user_photo"
                     />
                   </div>
+                  <IoMdArrowDropdown />
                 </div>
               </Menu.Button>
               <Transition
@@ -115,33 +117,33 @@ const Navbar = () => {
               >
                 <Menu.Items
                   className={
-                    "absolute left-[50%] flex w-[120px] translate-x-[-50%] flex-col items-center justify-center divide-y-[1px] divide-slate-600/50 overflow-hidden rounded-lg bg-slate-900/50 shadow-lg backdrop-blur-md"
+                    "absolute left-[50%] flex w-[140px] translate-x-[-50%] flex-col items-center justify-center divide-y-[1px] divide-slate-600/50 overflow-hidden rounded-lg bg-slate-900/50 shadow-lg backdrop-blur-md"
                   }
                 >
                   <Menu.Item>
                     {({ active }) => (
-                      <a
+                      <Link
                         className={`${
                           active && "bg-sky-500"
-                        } flex w-full items-center justify-center py-3`}
-                        href="/"
+                        } flex w-full items-center py-3`}
+                        to="/profile"
                       >
-                        <FaUser className="mr-2 " />
+                        <FaUser className="mr-2 pl-2 text-xl" />
                         Profile
-                      </a>
+                      </Link>
                     )}
                   </Menu.Item>
                   <Menu.Item>
                     {({ active }) => (
-                      <a
+                      <Link
                         className={`${
                           active && "bg-sky-500"
-                        } flex w-full items-center justify-center py-3`}
-                        href="/"
+                        } flex w-full items-center py-3`}
+                        to="/"
                       >
-                        <HiDocumentAdd className="mr-1 text-lg " />
+                        <BsFillBookmarkPlusFill className="mr-2 pl-2 text-2xl" />
                         Add Animes
-                      </a>
+                      </Link>
                     )}
                   </Menu.Item>
                   <Menu.Item>
@@ -149,10 +151,10 @@ const Navbar = () => {
                       <button
                         className={`${
                           active && "bg-sky-500"
-                        } flex w-full items-center justify-center py-3`}
+                        } flex w-full items-center py-3`}
                         onClick={logoutHandler}
                       >
-                        <CgLogOut className="mr-1 text-xl " />
+                        <CgLogOut className="mr-2 pl-2 text-2xl" />
                         Log out
                       </button>
                     )}
