@@ -12,7 +12,7 @@ import Hero from "src/components/Layout/Hero";
 import Loader from "src/components/Loader";
 import SectionTitle from "src/components/SectionTitle";
 // React Icons
-import { FaRegHeart, FaRegClock } from "react-icons/fa";
+import { FaRegHeart, FaHeart } from "react-icons/fa";
 // Utils
 import ResetPagePosition from "src/utils/resetPagePosition";
 import { MdArrowBackIosNew } from "react-icons/md";
@@ -29,6 +29,10 @@ const AnimePage = () => {
 
   ResetPagePosition(pathname);
 
+  // const hasCollected = user?.animeCollections?.some(
+  //   (item: string) => item === params.id
+  // );
+
   useEffect(() => {
     dispatch(getAnime(`${params.id}`));
   }, [dispatch, params.id]);
@@ -38,10 +42,11 @@ const AnimePage = () => {
     setImage(imgUrl);
   };
 
-  const likeHandler = (id: string, data: Anime) => {
-    dispatch(likeAnime({ id: id, animeData: data, userData: user }));
-    dispatch(getAnime(`${params.id}`));
-  };
+  // const likeHandler = (id: string, data: Anime) => {
+  //   dispatch(likeAnime({ id: id, animeData: data, userData: user }));
+  //   dispatch(getAnime(`${params.id}`));
+  //   dispatch(getUserById(user.uid));
+  // };
 
   return (
     <>
@@ -119,10 +124,17 @@ const AnimePage = () => {
                   <Text className="flex items-center text-slate-400">
                     {anime?.likes} Likes
                   </Text>
-                  <FaRegHeart
-                    className="mr-2 transition hover:cursor-pointer hover:text-lg"
-                    onClick={() => likeHandler(anime.id, anime)}
-                  />
+                  {/* {!hasCollected ? (
+                    <FaHeart
+                      className="mr-2 text-red-600 transition hover:cursor-pointer hover:text-lg"
+                      onClick={() => likeHandler(anime.id, anime)}
+                    />
+                  ) : (
+                    <FaRegHeart
+                      className="mr-2 transition hover:cursor-pointer hover:text-lg"
+                      onClick={() => likeHandler(anime.id, anime)}
+                    />
+                  )} */}
                 </div>
               </div>
             </Container>
@@ -142,7 +154,7 @@ const AnimePage = () => {
             <section>
               <SectionTitle title="Gallery" />
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4">
-                {anime?.galleries.map((img, i) => (
+                {anime?.galleries?.map((img, i) => (
                   <div
                     key={i}
                     className="w-90 h-48 overflow-hidden rounded-2xl  hover:cursor-pointer hover:shadow-xl"

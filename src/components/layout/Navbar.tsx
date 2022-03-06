@@ -14,13 +14,14 @@ import { IoMdArrowDropdown } from "react-icons/io";
 import Button from "src/components/common/Button";
 
 import { logoutUser, setUser } from "src/features/user/userSlice";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "src/config/db";
 
 const Navbar = () => {
+  const navigator = useNavigate();
   const dispatch = useAppDispatch();
   const [showMenu, setShowMenu] = useState(false);
   const { user } = useAppSelector((state) => state.user);
-
-  const userInfo = localStorage.getItem("userInfo");
 
   const menuHandler = () => setShowMenu(!showMenu);
 
@@ -29,10 +30,14 @@ const Navbar = () => {
   };
 
   useEffect(() => {
-    if (userInfo) {
-      dispatch(setUser(JSON.parse(userInfo).user));
-    }
-  }, [dispatch, userInfo]);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      dispatch(setUser(user));
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [dispatch, navigator, user]);
 
   return (
     <div
@@ -78,7 +83,7 @@ const Navbar = () => {
           >
             Categories
           </NavLink>
-          {!userInfo && (
+          {!user && (
             <div className="space-x-3">
               <Button
                 as="link"
@@ -93,14 +98,14 @@ const Navbar = () => {
             </div>
           )}
 
-          {userInfo && (
+          {user && (
             <Menu as={"div"} className="relative px-4">
               <Menu.Button>
                 <div className="flex items-center space-x-2">
                   <div className="h-[32px] w-[32px] overflow-hidden rounded-full">
                     <img
                       className="h-full w-full object-cover"
-                      src={`${user.photo}`}
+                      src={`${user.photoURL}`}
                       alt="user_photo"
                     />
                   </div>

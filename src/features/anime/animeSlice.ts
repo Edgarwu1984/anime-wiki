@@ -1,18 +1,17 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  createAsyncThunk,
+  createSlice,
+  isRejectedWithValue,
+  PayloadAction,
+} from "@reduxjs/toolkit";
 import { doc, increment, updateDoc } from "firebase/firestore";
 import { db } from "src/config/db";
 import AnimeService from "src/Services/animeService";
 import UserService from "src/Services/userService";
 
-import { Anime } from "src/types/AnimeTypes";
-import { UserDoc } from "src/types/UserTypes";
-
-type InitialState = {
-  animes: Anime[];
-  anime: Anime;
-  status: "loading" | "success" | "error" | "idle";
-  message: string;
-};
+import { Anime, InitialAnimeState } from "src/types/AnimeTypes";
+import { InitialUserStateTypes, UserDoc } from "src/types/UserTypes";
+import { setUser } from "../user/userSlice";
 
 export const getAnimes = createAsyncThunk(
   "animes/getAnimes",
@@ -48,24 +47,50 @@ export const likeAnime = createAsyncThunk(
       animeData,
       userData,
     }: { id: string; animeData: Anime; userData: UserDoc },
-    thunkAPI
+    { dispatch }
   ) => {
     try {
-      await AnimeService.updateAnime(id, {
-        ...animeData,
-        likes: animeData.likes + 1,
-      });
+      const user = (await UserService.getUserById(userData.uid)) as UserDoc;
 
-      const user = await UserService.getUser(userData.uid);
+      const hasLiked = user?.animeCollections.some(
+        (item: string) => item === id
+      );
 
-      await UserService.updateUser(user?.uid, {
-        ...userData,
-        animeCollections: [...user?.animeCollections, id],
-      });
+      // Unlike
+      if (hasLiked) {
+        // Like count -1
+        await AnimeService.updateAnime(id, {
+          ...animeData,
+          likes: animeData.likes - 1,
+        });
+
+        // Update collection array
+        const newCollection = user?.animeCollections.filter(
+          (item: string) => item !== id
+        );
+
+        await UserService.updateUserById(user?.uid, {
+          ...userData,
+          animeCollections: newCollection,
+        });
+      }
+      // Like
+      else {
+        // Like count +1
+        await AnimeService.updateAnime(id, {
+          ...animeData,
+          likes: animeData.likes + 1,
+        });
+        // Update collection array
+        await UserService.updateUserById(user?.uid, {
+          ...userData,
+          animeCollections: [...user?.animeCollections].concat(id),
+        });
+      }
     } catch (error: any) {
       const message = error.message;
-      error.toString();
-      return thunkAPI.rejectWithValue(message);
+
+      return isRejectedWithValue(message);
     }
   }
 );
@@ -77,7 +102,7 @@ export const getTopAnimes = createAsyncThunk(
       return await AnimeService.getTopAnimes();
     } catch (error: any) {
       const message = error.message;
-      error.toString();
+
       return thunkAPI.rejectWithValue(message);
     }
   }
@@ -103,22 +128,28 @@ const initialState = {
   },
   status: "idle",
   message: "",
-} as InitialState;
+} as InitialAnimeState;
 
 export const animeSlice = createSlice({
   name: "animes",
   initialState,
   reducers: {
     reset: (state) => (state = initialState),
+    setAnime: (
+      state: InitialAnimeState,
+      action: PayloadAction<InitialAnimeState["anime"]>
+    ) => {
+      state.anime = action.payload;
+    },
     setAnimes: (
-      state: InitialState,
-      action: PayloadAction<InitialState["animes"]>
+      state: InitialAnimeState,
+      action: PayloadAction<InitialAnimeState["animes"]>
     ) => {
       state.animes = action.payload;
     },
     setMessage: (
-      state: InitialState,
-      action: PayloadAction<InitialState["message"]>
+      state: InitialAnimeState,
+      action: PayloadAction<InitialAnimeState["message"]>
     ) => {
       state.message = action.payload;
     },
@@ -171,5 +202,5 @@ export const animeSlice = createSlice({
   },
 });
 
-export const { reset, setAnimes, setMessage } = animeSlice.actions;
+export const { reset, setAnime, setAnimes, setMessage } = animeSlice.actions;
 export default animeSlice.reducer;

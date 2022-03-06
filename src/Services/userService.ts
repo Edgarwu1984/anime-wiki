@@ -2,9 +2,22 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   updateProfile,
+  signOut,
+  User,
 } from "firebase/auth";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { auth, db } from "src/config/db";
+import { Anime } from "src/types/AnimeTypes";
 import { UserDoc } from "src/types/UserTypes";
 
 // Sign up User
@@ -25,78 +38,85 @@ const signupUser = async (
   // Create user document
   const userDoc: UserDoc = {
     uid: userData.user.uid,
-    username: userData.user.displayName,
-    photo: userData.user.photoURL,
-    email: userData.user.email,
     animeCollections: [],
     isAdmin: false,
-    lastSignInTime: userData.user.metadata.lastSignInTime,
   };
 
   await setDoc(doc(db, "users", userData.user.uid), userDoc);
 
-  // Save userInfo to localStorage
-  const user = {
-    id: userData.user.uid,
-    username: userData.user.displayName,
-    email: userData.user.email,
-    lastSignInTime: userData.user.metadata.lastSignInTime,
-  };
-
-  const token = await userData.user.getIdToken();
-
-  const localStorageData = { user, token };
-
-  localStorage.setItem("userInfo", JSON.stringify(localStorageData));
-
-  return userDoc;
+  return userData.user;
 };
 
 // Login User
 const loginUser = async (email: string, password: string) => {
   const userData = await signInWithEmailAndPassword(auth, email, password);
 
-  const userDoc = await getUser(userData.user.uid);
+  return userData.user;
+};
 
-  const user: UserDoc = {
-    uid: userData.user.uid,
-    username: userData.user.displayName,
-    email: userData.user.email,
-    photo: userData.user.photoURL,
-    lastSignInTime: userData.user.metadata.lastSignInTime,
-    isAdmin: userDoc?.isAdmin,
-    animeCollections: userDoc?.animeCollections,
-  };
-  const token = await userData.user.getIdToken();
-
-  const localStorageData = { user, token };
-
-  localStorage.setItem("userInfo", JSON.stringify(localStorageData));
-
-  return user;
+// Log out User
+const logoutUser = async () => {
+  await signOut(auth);
 };
 
 // Get User by ID
-const getUser = async (id: string) => {
+const getUserById = async (id: string) => {
   const userRef = doc(db, "users", id);
   const userSnapshot = await getDoc(userRef);
 
   if (userSnapshot.exists()) {
-    return userSnapshot.data();
+    const userDoc = userSnapshot.data() as UserDoc;
+    return userDoc;
   }
 };
 
 // Update User by Id
-const updateUser = async (id: string, data: UserDoc) => {
+const updateUserById = async (id: string, data: UserDoc) => {
   const userRef = doc(db, "users", id);
-  return await updateDoc(userRef, { ...data });
+  await updateDoc(userRef, { ...data });
+  const user = await getUserById(id);
+  return user as UserDoc;
+};
+
+// Delete User by Id
+const deleteUserById = async (id: string) => {
+  const userRef = doc(db, "users", id);
+  return await deleteDoc(userRef);
+};
+
+// Get User's animes
+const getUserAnimes = async (uid: string) => {
+  let animeArray: Anime[] = [];
+  const user = await getUserById(uid);
+  const animeIdArray = user?.animeCollections;
+  //   if (animeIdArray.length > 0) {
+  //     animeIdArray.forEach(async (animeId: string) => {
+  //       const animeRef = query(
+  //         collection(db, "anime_list"),
+  //         where("id", "==", animeId)
+  //       );
+
+  //       const querySnapshot = await getDocs(animeRef);
+
+  //       querySnapshot.forEach((doc) => {
+  //         const id = doc.id;
+  //         const anime = { id, ...doc.data() } as Anime;
+  //         return [anime].concat(anime);
+  //       });
+  //     });
+  //   }
+
+  return animeArray;
 };
 
 const UserService = {
   signupUser,
   loginUser,
-  getUser,
-  updateUser,
+  logoutUser,
+  getUserById,
+  updateUserById,
+  deleteUserById,
+  getUserAnimes,
 };
 
 export default UserService;

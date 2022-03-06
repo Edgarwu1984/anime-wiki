@@ -1,9 +1,14 @@
+import { User } from "firebase/auth";
+
 export interface UserDoc {
   uid: string;
-  username: string | null;
-  photo: string | null;
-  email: string | null;
-  animeCollections: any[];
+  animeCollections: string[];
   isAdmin: boolean;
-  lastSignInTime: string | undefined;
+}
+
+export interface InitialUserStateTypes {
+  user: User | null;
+  userDoc: UserDoc | undefined;
+  status: "loading" | "success" | "error" | "idle";
+  message: string;
 }
