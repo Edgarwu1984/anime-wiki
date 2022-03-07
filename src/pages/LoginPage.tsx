@@ -73,7 +73,7 @@ const LoginPage = () => {
                 Email
               </Text>
               <input
-                className="w-full rounded-3xl border  border-slate-900 bg-slate-700 px-4 py-2 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-sky-500"
+                className="w-full rounded-3xl border  border-slate-900 bg-slate-700 px-[1em] py-[0.4em] placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-sky-500"
                 type="text"
                 placeholder="Email"
                 {...register("email")}
@@ -92,7 +92,7 @@ const LoginPage = () => {
                 Password
               </Text>
               <input
-                className="w-full rounded-3xl border  border-slate-900 bg-slate-700 px-4 py-2 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-sky-500"
+                className="w-full rounded-3xl border  border-slate-900 bg-slate-700 px-[1em] py-[0.4em] placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-sky-500"
                 type="password"
                 placeholder="Password"
                 {...register("password")}

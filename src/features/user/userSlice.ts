@@ -9,6 +9,11 @@ type Form = {
   password: string;
 };
 
+type UserProfile = {
+  photo: string | null;
+  username: string | null;
+};
+
 export const registerUser = createAsyncThunk(
   "user/register",
   async (
@@ -63,6 +68,21 @@ export const getUser = createAsyncThunk(
       const userDoc = await UserService.getUserById(uid);
       dispatch(setUserDoc(userDoc));
       return userDoc;
+    } catch (error: any) {
+      const message = error.message;
+      return rejectWithValue(message);
+    }
+  }
+);
+
+export const updateUserProfile = createAsyncThunk(
+  "user/updateUserProfile",
+  async (
+    { user, formData }: { user: User | null; formData: UserProfile },
+    { rejectWithValue }
+  ) => {
+    try {
+      return await UserService.updateUserProfile(user, formData);
     } catch (error: any) {
       const message = error.message;
       return rejectWithValue(message);
@@ -182,6 +202,16 @@ export const userSlice = createSlice({
         // state.user = action.payload as User;
       })
       .addCase(updateUser.rejected, (state, action) => {
+        state.status = "error";
+        state.message = action.payload as string;
+      })
+      .addCase(updateUserProfile.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(updateUserProfile.fulfilled, (state) => {
+        state.status = "success";
+      })
+      .addCase(updateUserProfile.rejected, (state, action) => {
         state.status = "error";
         state.message = action.payload as string;
       });

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { FaUserEdit } from "react-icons/fa";
 import { MdArrowBackIosNew } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
@@ -7,6 +7,7 @@ import Container from "src/components/common/Container";
 import Text from "src/components/common/Text";
 import Layout from "src/components/Layout";
 import Hero from "src/components/Layout/Hero";
+import UserEditModal from "src/components/Modal/UserEditModal";
 import SectionTitle from "src/components/SectionTitle";
 import { getUserAnimeCollection } from "src/features/user/userSlice";
 
@@ -14,6 +15,11 @@ function ProfilePage() {
   const navigator = useNavigate();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.user);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const modalOpenHandler = () => {
+    setIsOpen(true);
+  };
 
   useEffect(() => {
     if (user === null) {
@@ -23,7 +29,7 @@ function ProfilePage() {
 
   return (
     <Layout>
-      {" "}
+      <UserEditModal isOpen={isOpen} setIsOpen={setIsOpen} user={user} />
       <Hero heroType="heroSub" height="300px" bgImage="/images/bg_galaxy.png">
         <Container className="flex h-full flex-col items-start justify-center space-y-4">
           <div className="mb-4 w-full">
@@ -37,7 +43,7 @@ function ProfilePage() {
           </div>
 
           <div className="flex w-full flex-col items-center space-y-3">
-            <div className="mr-3 h-[120px] w-[120px] overflow-hidden rounded-full">
+            <div className="mr-3 h-[120px] w-[120px] overflow-hidden rounded-2xl">
               <img
                 className="h-full w-full object-cover"
                 src={`${user?.photoURL}`}
@@ -51,7 +57,10 @@ function ProfilePage() {
             <Text as="p" className="test-slate-100">
               Last time logged in: {user?.metadata.lastSignInTime}
             </Text>
-            <div className=" flex items-center justify-center rounded-full bg-slate-900 px-2 text-sky-500">
+            <div
+              className=" flex items-center justify-center rounded-full bg-slate-900 px-2 text-sky-500 hover:cursor-pointer"
+              onClick={modalOpenHandler}
+            >
               <FaUserEdit className="mr-1 text-base" />
               <Text>Edit</Text>
             </div>

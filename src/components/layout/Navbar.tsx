@@ -102,7 +102,7 @@ const Navbar = () => {
             <Menu as={"div"} className="relative px-4">
               <Menu.Button>
                 <div className="flex items-center space-x-2">
-                  <div className="h-[32px] w-[32px] overflow-hidden rounded-full">
+                  <div className="h-[36px] w-[36px] overflow-hidden rounded-md">
                     <img
                       className="h-full w-full object-cover"
                       src={`${user.photoURL}`}

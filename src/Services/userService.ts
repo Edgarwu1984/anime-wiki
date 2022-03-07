@@ -70,6 +70,20 @@ const getUserById = async (id: string) => {
   }
 };
 
+// Update User Profile
+const updateUserProfile = async (
+  userData: User | null,
+  formData: { photo: string | null; username: string | null }
+) => {
+  const { photo, username } = formData;
+  if (userData !== null) {
+    await updateProfile(userData, {
+      displayName: username,
+      photoURL: photo,
+    });
+  }
+};
+
 // Update User by Id
 const updateUserById = async (id: string, data: UserDoc) => {
   const userRef = doc(db, "users", id);
@@ -113,6 +127,7 @@ const UserService = {
   signupUser,
   loginUser,
   logoutUser,
+  updateUserProfile,
   getUserById,
   updateUserById,
   deleteUserById,
