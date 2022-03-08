@@ -100,27 +100,22 @@ const deleteUserById = async (id: string) => {
 
 // Get User's animes
 const getUserAnimes = async (uid: string) => {
-  let animeArray: Anime[] = [];
   const user = await getUserById(uid);
   const animeIdArray = user?.animeCollections;
-  //   if (animeIdArray.length > 0) {
-  //     animeIdArray.forEach(async (animeId: string) => {
-  //       const animeRef = query(
-  //         collection(db, "anime_list"),
-  //         where("id", "==", animeId)
-  //       );
+  const animeRef = query(
+    collection(db, "anime_list"),
+    where("id", "in", animeIdArray)
+  );
 
-  //       const querySnapshot = await getDocs(animeRef);
+  const querySnapshot = await getDocs(animeRef);
 
-  //       querySnapshot.forEach((doc) => {
-  //         const id = doc.id;
-  //         const anime = { id, ...doc.data() } as Anime;
-  //         return [anime].concat(anime);
-  //       });
-  //     });
-  //   }
+  const data = querySnapshot.docs.map((doc) => {
+    const id = doc.id;
+    const data = doc.data();
+    return { id, ...data };
+  });
 
-  return animeArray;
+  return data as Anime[];
 };
 
 const UserService = {

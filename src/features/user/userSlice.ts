@@ -3,6 +3,7 @@ import UserService from "src/Services/userService";
 import { SignUpForm } from "src/types/SignUpForm";
 import { InitialUserStateTypes, UserDoc } from "src/types/UserTypes";
 import { User } from "firebase/auth";
+import { Anime } from "src/types/AnimeTypes";
 
 type Form = {
   email: string;
@@ -107,7 +108,7 @@ export const updateUser = createAsyncThunk(
 
 export const getUserAnimeCollection = createAsyncThunk(
   "user/userAnimes",
-  async (uid: string, thunkAPI) => {
+  async (uid: any, thunkAPI) => {
     try {
       const animes = await UserService.getUserAnimes(uid);
       return animes;
@@ -120,7 +121,8 @@ export const getUserAnimeCollection = createAsyncThunk(
 
 const initialState = {
   user: null,
-  userDoc: {},
+  userDoc: undefined,
+  userAnimes: [],
   status: "idle",
   message: "",
 } as InitialUserStateTypes;
@@ -212,6 +214,17 @@ export const userSlice = createSlice({
         state.status = "success";
       })
       .addCase(updateUserProfile.rejected, (state, action) => {
+        state.status = "error";
+        state.message = action.payload as string;
+      })
+      .addCase(getUserAnimeCollection.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(getUserAnimeCollection.fulfilled, (state, action) => {
+        state.status = "success";
+        state.userAnimes = action.payload as Anime[];
+      })
+      .addCase(getUserAnimeCollection.rejected, (state, action) => {
         state.status = "error";
         state.message = action.payload as string;
       });

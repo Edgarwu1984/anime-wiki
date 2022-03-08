@@ -3,6 +3,7 @@ import { FaUserEdit } from "react-icons/fa";
 import { MdArrowBackIosNew } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "src/app/store";
+import AnimeList from "src/components/AnimeList";
 import Container from "src/components/common/Container";
 import Text from "src/components/common/Text";
 import Layout from "src/components/Layout";
@@ -14,8 +15,10 @@ import { getUserAnimeCollection } from "src/features/user/userSlice";
 function ProfilePage() {
   const navigator = useNavigate();
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.user);
+  const { user, userAnimes, status } = useAppSelector((state) => state.user);
   const [isOpen, setIsOpen] = useState(false);
+
+  console.log(userAnimes);
 
   const modalOpenHandler = () => {
     setIsOpen(true);
@@ -25,7 +28,8 @@ function ProfilePage() {
     if (user === null) {
       navigator("/");
     }
-  }, [navigator, user]);
+    dispatch(getUserAnimeCollection(user?.uid));
+  }, [dispatch, navigator, user]);
 
   return (
     <Layout>
@@ -70,6 +74,7 @@ function ProfilePage() {
       <Container>
         <section>
           <SectionTitle title="My Animes" />
+          <AnimeList data={userAnimes} status={status} listType="row" />
         </section>
       </Container>
     </Layout>
