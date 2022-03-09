@@ -16,7 +16,7 @@ import { FaRegHeart, FaHeart } from "react-icons/fa";
 // Utils
 import ResetPagePosition from "src/utils/resetPagePosition";
 import { MdArrowBackIosNew } from "react-icons/md";
-import { Anime } from "src/types/AnimeTypes";
+import { getUserAnimeCollection } from "src/features/user/userSlice";
 
 const AnimePage = () => {
   const params = useParams();
@@ -25,28 +25,25 @@ const AnimePage = () => {
   const [image, setImage] = useState("");
   const dispatch = useAppDispatch();
   const { anime, status } = useAppSelector((state) => state.anime);
-  const { user } = useAppSelector((state) => state.user);
+  const { user, userAnimes } = useAppSelector((state) => state.user);
 
   ResetPagePosition(pathname);
 
-  // const hasCollected = user?.animeCollections?.some(
-  //   (item: string) => item === params.id
-  // );
+  const hasCollected = userAnimes.some((item) => item.id === params.id);
 
   useEffect(() => {
     dispatch(getAnime(`${params.id}`));
-  }, [dispatch, params.id]);
+    dispatch(getUserAnimeCollection(user?.uid));
+  }, [dispatch, params.id, user?.uid]);
 
   const modalOpenHandler = (imgUrl: string) => {
     setIsOpen(true);
     setImage(imgUrl);
   };
 
-  // const likeHandler = (id: string, data: Anime) => {
-  //   dispatch(likeAnime({ id: id, animeData: data, userData: user }));
-  //   dispatch(getAnime(`${params.id}`));
-  //   dispatch(getUserById(user.uid));
-  // };
+  const likeHandler = () => {
+    dispatch(likeAnime({ anime, user }));
+  };
 
   return (
     <>
@@ -124,17 +121,17 @@ const AnimePage = () => {
                   <Text className="flex items-center text-slate-400">
                     {anime?.likes} Likes
                   </Text>
-                  {/* {!hasCollected ? (
+                  {hasCollected ? (
                     <FaHeart
                       className="mr-2 text-red-600 transition hover:cursor-pointer hover:text-lg"
-                      onClick={() => likeHandler(anime.id, anime)}
+                      onClick={likeHandler}
                     />
                   ) : (
                     <FaRegHeart
                       className="mr-2 transition hover:cursor-pointer hover:text-lg"
-                      onClick={() => likeHandler(anime.id, anime)}
+                      onClick={likeHandler}
                     />
-                  )} */}
+                  )}
                 </div>
               </div>
             </Container>

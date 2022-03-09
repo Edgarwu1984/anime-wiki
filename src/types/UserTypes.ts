@@ -2,9 +2,9 @@ import { User } from "firebase/auth";
 import { Anime } from "./AnimeTypes";
 
 export interface UserDoc {
-  uid: string;
-  animeCollections: string[];
-  isAdmin: boolean;
+  uid: string | undefined;
+  animeCollections: string[] | undefined;
+  isAdmin: boolean | undefined;
 }
 
 export interface InitialUserStateTypes {

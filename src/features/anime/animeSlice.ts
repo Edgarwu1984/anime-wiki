@@ -4,6 +4,7 @@ import {
   isRejectedWithValue,
   PayloadAction,
 } from "@reduxjs/toolkit";
+import { User } from "firebase/auth";
 import { doc, increment, updateDoc } from "firebase/firestore";
 import { db } from "src/config/db";
 import AnimeService from "src/Services/animeService";
@@ -11,7 +12,7 @@ import UserService from "src/Services/userService";
 
 import { Anime, InitialAnimeState } from "src/types/AnimeTypes";
 import { InitialUserStateTypes, UserDoc } from "src/types/UserTypes";
-import { setUser } from "../user/userSlice";
+import { getUser, getUserAnimeCollection, setUser } from "../user/userSlice";
 
 export const getAnimes = createAsyncThunk(
   "animes/getAnimes",
@@ -21,6 +22,19 @@ export const getAnimes = createAsyncThunk(
     } catch (error: any) {
       const message = error.message;
       error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+export const getTopAnimes = createAsyncThunk(
+  "animes/getTopAnimes",
+  async (_, thunkAPI) => {
+    try {
+      return await AnimeService.getTopAnimes();
+    } catch (error: any) {
+      const message = error.message;
+
       return thunkAPI.rejectWithValue(message);
     }
   }
@@ -42,68 +56,54 @@ export const getAnime = createAsyncThunk(
 export const likeAnime = createAsyncThunk(
   "animes/likeAnime",
   async (
-    {
-      id,
-      animeData,
-      userData,
-    }: { id: string; animeData: Anime; userData: UserDoc },
+    { anime, user }: { anime: Anime; user: User | null },
     { dispatch }
   ) => {
     try {
-      const user = (await UserService.getUserById(userData.uid)) as UserDoc;
-
-      const hasLiked = user?.animeCollections.some(
-        (item: string) => item === id
-      );
-
-      // Unlike
-      if (hasLiked) {
-        // Like count -1
-        await AnimeService.updateAnime(id, {
-          ...animeData,
-          likes: animeData.likes - 1,
-        });
-
-        // Update collection array
-        const newCollection = user?.animeCollections.filter(
-          (item: string) => item !== id
+      if (user) {
+        const userDoc = (await UserService.getUserById(user.uid)) as UserDoc;
+        const hasLiked = userDoc?.animeCollections?.some(
+          (item) => item === anime.id
         );
 
-        await UserService.updateUserById(user?.uid, {
-          ...userData,
-          animeCollections: newCollection,
-        });
+        // Unlike
+        if (hasLiked) {
+          // Like count -1
+          await AnimeService.updateAnime(anime.id, {
+            ...anime,
+            likes: anime.likes - 1,
+          });
+
+          // Update collection array
+          const newUserAnimes = userDoc?.animeCollections?.filter(
+            (item) => item !== anime.id
+          );
+          await UserService.updateUserById(user.uid, {
+            ...userDoc,
+            animeCollections: newUserAnimes,
+          });
+        } else {
+          await AnimeService.updateAnime(anime.id, {
+            ...anime,
+            likes: anime.likes + 1,
+          });
+
+          // Update collection array
+          const newUserAnimes = userDoc?.animeCollections;
+          if (newUserAnimes) {
+            await UserService.updateUserById(user.uid, {
+              ...userDoc,
+              animeCollections: [...newUserAnimes, anime.id],
+            });
+          }
+        }
       }
-      // Like
-      else {
-        // Like count +1
-        await AnimeService.updateAnime(id, {
-          ...animeData,
-          likes: animeData.likes + 1,
-        });
-        // Update collection array
-        await UserService.updateUserById(user?.uid, {
-          ...userData,
-          animeCollections: [...user?.animeCollections].concat(id),
-        });
-      }
+      dispatch(getAnime(anime.id));
+      dispatch(getUserAnimeCollection(user?.uid));
     } catch (error: any) {
       const message = error.message;
 
       return isRejectedWithValue(message);
-    }
-  }
-);
-
-export const getTopAnimes = createAsyncThunk(
-  "animes/getTopAnimes",
-  async (_, thunkAPI) => {
-    try {
-      return await AnimeService.getTopAnimes();
-    } catch (error: any) {
-      const message = error.message;
-
-      return thunkAPI.rejectWithValue(message);
     }
   }
 );

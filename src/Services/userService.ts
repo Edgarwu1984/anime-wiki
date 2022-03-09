@@ -73,7 +73,10 @@ const getUserById = async (id: string) => {
 // Update User Profile
 const updateUserProfile = async (
   userData: User | null,
-  formData: { photo: string | null; username: string | null }
+  formData: {
+    photo: string | null | undefined;
+    username: string | null | undefined;
+  }
 ) => {
   const { photo, username } = formData;
   if (userData !== null) {

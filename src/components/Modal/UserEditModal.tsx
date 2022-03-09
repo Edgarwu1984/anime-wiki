@@ -1,17 +1,10 @@
 import { Fragment, Dispatch, SetStateAction, useState } from "react";
-import { useForm } from "react-hook-form";
 import { Dialog, Transition } from "@headlessui/react";
 import { User } from "firebase/auth";
-import { useAppDispatch, useAppSelector } from "src/app/store";
-import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "src/app/store";
 import Text from "../common/Text";
 import Button from "../common/Button";
-import { updateUser, updateUserProfile } from "src/features/user/userSlice";
-
-type FormData = {
-  photo: string | null;
-  username: string | null;
-};
+import { updateUserProfile } from "src/features/user/userSlice";
 
 type Props = {
   isOpen: boolean;
@@ -21,11 +14,9 @@ type Props = {
 };
 
 function UserEditModal({ isOpen, setIsOpen, user }: Props) {
-  const navigator = useNavigate();
   const dispatch = useAppDispatch();
-  const [photo, setPhoto] = useState("");
-  const [username, setUsername] = useState("");
-  const { status, message } = useAppSelector((state) => state.user);
+  const [photo, setPhoto] = useState(user?.photoURL);
+  const [username, setUsername] = useState<any>(user?.displayName);
 
   const avatarArray = [
     "https://firebasestorage.googleapis.com/v0/b/anime-wiki-93dac.appspot.com/o/user_images%2Favatar01.png?alt=media&token=f6cd61b0-f03c-46f8-9c0a-a6a6527d60fc",
@@ -104,11 +95,15 @@ function UserEditModal({ isOpen, setIsOpen, user }: Props) {
                         htmlFor={`avatar_${index}`}
                         className=" cursor-pointer checked:ring-2 checked:ring-sky-500"
                       >
-                        <img
-                          src={item}
-                          alt={`avatar_${index}`}
-                          className="h-[48px] w-[48px] rounded-xl"
-                        />
+                        {!item ? (
+                          <div className="h-[48px] w-[48px] animate-pulse rounded-xl bg-slate-600" />
+                        ) : (
+                          <img
+                            src={item}
+                            alt={`avatar_${index}`}
+                            className="h-[48px] w-[48px] rounded-xl"
+                          />
+                        )}
                       </label>
                     </div>
                   ))}

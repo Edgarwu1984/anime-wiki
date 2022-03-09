@@ -30,7 +30,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (status === "success") {
-      navigator("/");
+      navigator("/profile");
     }
   }, [navigator, status]);
 

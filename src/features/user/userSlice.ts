@@ -11,8 +11,8 @@ type Form = {
 };
 
 type UserProfile = {
-  photo: string | null;
-  username: string | null;
+  photo: string | null | undefined;
+  username: string | null | undefined;
 };
 
 export const registerUser = createAsyncThunk(

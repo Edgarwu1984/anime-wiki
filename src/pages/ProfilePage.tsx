@@ -18,8 +18,6 @@ function ProfilePage() {
   const { user, userAnimes, status } = useAppSelector((state) => state.user);
   const [isOpen, setIsOpen] = useState(false);
 
-  console.log(userAnimes);
-
   const modalOpenHandler = () => {
     setIsOpen(true);
   };
