@@ -20,7 +20,7 @@ type CardProps = Omit<
 >;
 
 type ExtraProps = {
-  cardType?: "row";
+  cardType?: "column";
 };
 
 type UnionCardProps = CardProps & ExtraProps;
@@ -35,11 +35,10 @@ const Card = ({
   cardType,
 }: UnionCardProps) => {
   switch (cardType) {
-    case "row":
+    case "column":
       return (
         <Link
           to={`/categories/${id}`}
-          key={id}
           className=" relative h-24 rounded-xl bg-slate-700 bg-gradient-to-r from-slate-900/95 to-sky-700/75 p-4 shadow-md shadow-slate-900 transition hover:brightness-110"
         >
           <div className=" z-20 h-full">
@@ -71,7 +70,6 @@ const Card = ({
       return (
         <Link
           to={`/categories/${id}`}
-          key={id}
           className="card flex w-60 flex-col rounded-2xl transition hover:bg-slate-800"
         >
           <div className="card-image-wrap h-[20rem] w-full overflow-hidden rounded-2xl">

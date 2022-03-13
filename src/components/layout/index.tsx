@@ -4,11 +4,11 @@ import Footer from "./Footer";
 
 type Props = {
   children: ReactNode;
-  pageTitle?: String;
+  pageTitle?: string;
 };
 
 const Layout = ({ pageTitle, children }: Props) => {
-  document.title = `AnimeWiki`;
+  document.title = !pageTitle ? `AnimeWiki` : `AnimeWiki - ${pageTitle}`;
 
   return (
     <>

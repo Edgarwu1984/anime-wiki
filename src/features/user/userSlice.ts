@@ -1,14 +1,25 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import UserService from "src/Services/userService";
 import { SignUpForm } from "src/types/SignUpForm";
 import { InitialUserStateTypes, UserDoc } from "src/types/UserTypes";
-import { User } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  updateProfile,
+  User,
+} from "firebase/auth";
 import { Anime } from "src/types/AnimeTypes";
-
-type Form = {
-  email: string;
-  password: string;
-};
+import { auth, db } from "src/config/db";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 
 type UserProfile = {
   photo: string | null | undefined;
@@ -22,29 +33,60 @@ export const registerUser = createAsyncThunk(
     { dispatch, rejectWithValue }
   ) => {
     try {
-      const user = await UserService.signupUser(username, email, password);
-      const userDoc = await UserService.getUserById(user.uid);
-      dispatch(setUserDoc(userDoc));
+      const { user } = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      // Set default user photo
+      await updateProfile(user, {
+        displayName: username,
+        photoURL:
+          "https://firebasestorage.googleapis.com/v0/b/anime-wiki-93dac.appspot.com/o/user_images%2Fuser-icon-dark.png?alt=media&token=0c6096c4-6c6a-4d7d-ba1e-85640c8165bd",
+      });
+
+      // Create user document
+      const userDoc: UserDoc = {
+        uid: user.uid,
+        username: username,
+        animeCollections: [],
+        isAdmin: false,
+      };
+
+      await setDoc(doc(db, "users", user.uid), userDoc);
+
       return user;
     } catch (error: any) {
-      const message = error.message;
-      error.toString();
-      return rejectWithValue(message);
+      return rejectWithValue(error.message);
     }
   }
 );
 
 export const loginUser = createAsyncThunk(
   "user/login",
-  async ({ email, password }: Form, { dispatch, rejectWithValue }) => {
+  async (
+    { email, password }: { email: string; password: string },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
-      const user = await UserService.loginUser(email, password);
-      const userDoc = await UserService.getUserById(user.uid);
-      dispatch(setUserDoc(userDoc));
+      const user = (await signInWithEmailAndPassword(auth, email, password))
+        .user;
+      if (user) {
+        const userRef = doc(db, "users", user.uid);
+        const userSnapshot = await getDoc(userRef);
+
+        if (!userSnapshot.exists()) {
+          dispatch(setMessage("Anime does not exist."));
+          dispatch(setMessageType("error"));
+        } else {
+          const userDoc = userSnapshot.data() as UserDoc;
+          dispatch(setUserDoc(userDoc));
+        }
+      }
       return user;
     } catch (error: any) {
-      const message = error.message;
-      return rejectWithValue(message);
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -53,25 +95,30 @@ export const logoutUser = createAsyncThunk(
   "user/logout",
   async (_, { dispatch, rejectWithValue }) => {
     try {
-      await UserService.logoutUser();
+      await signOut(auth);
       dispatch(setUserDoc(initialState.userDoc));
     } catch (error: any) {
-      const message = error.message;
-      return rejectWithValue(message);
+      return rejectWithValue(error.message);
     }
   }
 );
 
-export const getUser = createAsyncThunk(
-  "user/getUser",
+export const getUserDoc = createAsyncThunk(
+  "user/getUserDoc",
   async (uid: string, { dispatch, rejectWithValue }) => {
     try {
-      const userDoc = await UserService.getUserById(uid);
-      dispatch(setUserDoc(userDoc));
-      return userDoc;
+      const userRef = doc(db, "users", uid);
+      const userSnapshot = await getDoc(userRef);
+
+      if (userSnapshot.exists()) {
+        const userDoc = userSnapshot.data() as UserDoc;
+
+        dispatch(setUserDoc(userDoc));
+
+        return userDoc;
+      }
     } catch (error: any) {
-      const message = error.message;
-      return rejectWithValue(message);
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -83,62 +130,107 @@ export const updateUserProfile = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      return await UserService.updateUserProfile(user, formData);
+      const { username, photo } = formData;
+      if (user !== null) {
+        await updateProfile(user, {
+          displayName: username,
+          photoURL: photo,
+        });
+      }
     } catch (error: any) {
-      const message = error.message;
-      return rejectWithValue(message);
+      return rejectWithValue(error.message);
     }
   }
 );
 
-export const updateUser = createAsyncThunk(
-  "user/updateUser",
+export const updateUserDoc = createAsyncThunk(
+  "user/updateUserDoc",
   async (
     { uid, data }: { uid: string; data: UserDoc },
-    { rejectWithValue }
+    { rejectWithValue, dispatch }
   ) => {
     try {
-      return await UserService.updateUserById(uid, data);
+      const userRef = doc(db, "users", uid);
+      await updateDoc(userRef, { ...data });
+      dispatch(getUserDoc(uid));
     } catch (error: any) {
-      const message = error.message;
-      return rejectWithValue(message);
+      return rejectWithValue(error.message);
     }
   }
 );
 
 export const getUserAnimeCollection = createAsyncThunk(
   "user/userAnimes",
-  async (uid: any, thunkAPI) => {
+  async (uid: any, { rejectWithValue, dispatch }) => {
     try {
-      const animes = await UserService.getUserAnimes(uid);
-      return animes;
+      const userRef = doc(db, "users", uid);
+      const userSnapshot = await getDoc(userRef);
+
+      if (userSnapshot.exists()) {
+        const userDoc = userSnapshot.data() as UserDoc;
+
+        const animeRef = query(
+          collection(db, "anime_list"),
+          where("id", "in", userDoc.animeCollections)
+        );
+        const querySnapshot = await getDocs(animeRef);
+
+        if (querySnapshot.empty) {
+          return;
+        } else {
+          const data = querySnapshot.docs.map((doc) => {
+            const id = doc.id;
+            const data = doc.data();
+            return { id, ...data };
+          }) as Anime[];
+
+          return data;
+        }
+      }
     } catch (error: any) {
-      const message = error.message;
-      return thunkAPI.rejectWithValue(message);
+      return rejectWithValue(error.message);
     }
   }
 );
 
 export const getUserContributions = createAsyncThunk(
   "user/userContribution",
-  async (uid: any, thunkAPI) => {
+  async (uid: any, { rejectWithValue }) => {
     try {
-      const animes = await UserService.getUserContribution(uid);
-      return animes;
+      const animeRef = query(
+        collection(db, "anime_list"),
+        where("contributedBy", "==", uid)
+      );
+
+      const querySnapshot = await getDocs(animeRef);
+
+      const data = querySnapshot.docs.map((doc) => {
+        const id = doc.id;
+        const data = doc.data();
+        return { id, ...data };
+      });
+
+      return data as Anime[];
     } catch (error: any) {
-      const message = error.message;
-      return thunkAPI.rejectWithValue(message);
+      return rejectWithValue(error.message);
     }
   }
 );
 
 const initialState = {
   user: null,
-  userDoc: undefined,
+  userDoc: {
+    username: "",
+    animeCollections: [],
+    uid: "",
+    isAdmin: false,
+  },
   userAnimes: [],
   userContribution: [],
   status: "idle",
+  isLoaded: false,
   message: "",
+  messageType: "info",
 } as InitialUserStateTypes;
 
 export const userSlice = createSlice({
@@ -157,11 +249,23 @@ export const userSlice = createSlice({
     ) => {
       state.userDoc = action.payload;
     },
+    setUserAnimes: (
+      state: InitialUserStateTypes,
+      action: PayloadAction<InitialUserStateTypes["userAnimes"]>
+    ) => {
+      state.userAnimes = action.payload;
+    },
     setMessage: (
       state: InitialUserStateTypes,
       action: PayloadAction<InitialUserStateTypes["message"]>
     ) => {
       state.message = action.payload;
+    },
+    setMessageType: (
+      state: InitialUserStateTypes,
+      action: PayloadAction<InitialUserStateTypes["messageType"]>
+    ) => {
+      state.messageType = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -199,25 +303,25 @@ export const userSlice = createSlice({
         state.status = "logout_error";
         state.message = action.payload as string;
       })
-      .addCase(getUser.pending, (state) => {
+      .addCase(getUserDoc.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(getUser.fulfilled, (state, action) => {
+      .addCase(getUserDoc.fulfilled, (state, action) => {
         state.status = "success";
         state.userDoc = action.payload as UserDoc;
       })
-      .addCase(getUser.rejected, (state, action) => {
+      .addCase(getUserDoc.rejected, (state, action) => {
         state.status = "error";
         state.message = action.payload as string;
       })
-      .addCase(updateUser.pending, (state) => {
+      .addCase(updateUserDoc.pending, (state) => {
         state.status = "updating_user";
       })
-      .addCase(updateUser.fulfilled, (state, action) => {
+      .addCase(updateUserDoc.fulfilled, (state, action) => {
         state.status = "update_success";
         // state.user = action.payload as User;
       })
-      .addCase(updateUser.rejected, (state, action) => {
+      .addCase(updateUserDoc.rejected, (state, action) => {
         state.status = "update_error";
         state.message = action.payload as string;
       })
@@ -257,5 +361,11 @@ export const userSlice = createSlice({
   },
 });
 
-export const { setUser, setUserDoc } = userSlice.actions;
+export const {
+  setUser,
+  setUserDoc,
+  setUserAnimes,
+  setMessage,
+  setMessageType,
+} = userSlice.actions;
 export default userSlice.reducer;

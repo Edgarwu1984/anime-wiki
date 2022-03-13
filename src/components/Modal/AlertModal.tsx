@@ -1,4 +1,4 @@
-import { Fragment, Dispatch, SetStateAction, useState } from "react";
+import { Fragment, Dispatch, SetStateAction } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { MdErrorOutline, MdCheckCircleOutline } from "react-icons/md";
 import Button from "../common/Button";
@@ -9,7 +9,6 @@ type Props = {
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   message: string;
   type: "error" | "info" | "success" | "warning";
-  //   setIsOpen: (value:boolean)=>void;
 };
 
 function AlertModal({ isOpen, setIsOpen, message, type }: Props) {

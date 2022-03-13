@@ -1,54 +1,100 @@
-import {
-  createAsyncThunk,
-  createSlice,
-  isRejectedWithValue,
-  PayloadAction,
-} from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { User } from "firebase/auth";
-import { doc, increment, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "src/config/db";
-import AnimeService from "src/Services/animeService";
-import UserService from "src/Services/userService";
-
 import { Anime, InitialAnimeState } from "src/types/AnimeTypes";
-import { InitialUserStateTypes, UserDoc } from "src/types/UserTypes";
-import { getUser, getUserAnimeCollection, setUser } from "../user/userSlice";
+import { UserDoc } from "src/types/UserTypes";
+import { getUserAnimeCollection, getUserDoc } from "../user/userSlice";
 
 export const getAnimes = createAsyncThunk(
   "animes/getAnimes",
-  async (_, thunkAPI) => {
+  async (_, { dispatch, rejectWithValue }) => {
     try {
-      return await AnimeService.getAnimes();
+      const ref = collection(db, "anime_list");
+
+      const snapshot = await getDocs(ref);
+
+      const data = snapshot.docs.map((doc) => {
+        const id = doc.id;
+        const data = doc.data();
+        return { id, ...data };
+      });
+
+      return data as Anime[];
     } catch (error: any) {
-      const message = error.message;
-      error.toString();
-      return thunkAPI.rejectWithValue(message);
+      return rejectWithValue(error.message);
     }
   }
 );
 
 export const getTopAnimes = createAsyncThunk(
   "animes/getTopAnimes",
-  async (_, thunkAPI) => {
+  async (_, { rejectWithValue }) => {
     try {
-      return await AnimeService.getTopAnimes();
-    } catch (error: any) {
-      const message = error.message;
+      const ref = query(
+        collection(db, "anime_list"),
+        orderBy("likes", "desc"),
+        limit(4)
+      );
+      const snapshot = await getDocs(ref);
+      const data = snapshot.docs.map((doc) => {
+        const id = doc.id;
+        const data = doc.data();
+        return { id, ...data };
+      });
 
-      return thunkAPI.rejectWithValue(message);
+      return data as Anime[];
+    } catch (error: any) {
+      return rejectWithValue(error.message);
     }
   }
 );
 
-export const getAnime = createAsyncThunk(
-  "animes/getAnime",
-  async (id: string, thunkAPI) => {
+export const postAnime = createAsyncThunk(
+  "animes/postAnime",
+  async (
+    { data, docId }: { data: Anime; docId: string },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
-      return await AnimeService.getAnime(id);
+      if (!data || !docId) {
+        dispatch(setMessageType("error"));
+        dispatch(setMessage("Invalid Data or Document ID"));
+      } else {
+        await setDoc(doc(db, "anime_list", docId), data);
+      }
     } catch (error: any) {
-      const message = error.message;
-      error.toString();
-      return thunkAPI.rejectWithValue(message);
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const getAnimeById = createAsyncThunk(
+  "animes/getAnimeById",
+  async (id: string, { dispatch, rejectWithValue }) => {
+    try {
+      const animeRef = doc(db, "anime_list", id);
+
+      const animeSnapshot = await getDoc(animeRef);
+      if (!animeSnapshot.exists()) {
+        dispatch(setMessage("Anime does not exist."));
+        dispatch(setMessageType("error"));
+      } else {
+        const anime = animeSnapshot.data();
+        return anime as Anime;
+      }
+    } catch (error: any) {
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -57,53 +103,53 @@ export const likeAnime = createAsyncThunk(
   "animes/likeAnime",
   async (
     { anime, user }: { anime: Anime; user: User | null },
-    { dispatch }
+    { rejectWithValue, dispatch }
   ) => {
     try {
       if (user) {
-        const userDoc = (await UserService.getUserById(user.uid)) as UserDoc;
-        const hasLiked = userDoc?.animeCollections?.some(
+        const animeRef = doc(db, "anime_list", anime.id);
+        const userRef = doc(db, "users", user.uid);
+        const userSnapshot = await getDoc(userRef);
+        const userDoc = userSnapshot.data() as UserDoc;
+
+        const hasLiked = userDoc.animeCollections.some(
           (item) => item === anime.id
         );
 
         // Unlike
         if (hasLiked) {
           // Like count -1
-          await AnimeService.updateAnime(anime.id, {
+          await updateDoc(animeRef, {
             ...anime,
             likes: anime.likes - 1,
           });
-
           // Update collection array
-          const newUserAnimes = userDoc?.animeCollections?.filter(
+          const newUserAnimes = userDoc.animeCollections.filter(
             (item) => item !== anime.id
           );
-          await UserService.updateUserById(user.uid, {
-            ...userDoc,
-            animeCollections: newUserAnimes,
-          });
+
+          await updateDoc(userRef, { animeCollections: newUserAnimes });
         } else {
-          await AnimeService.updateAnime(anime.id, {
+          await updateDoc(animeRef, {
             ...anime,
             likes: anime.likes + 1,
           });
 
           // Update collection array
-          const newUserAnimes = userDoc?.animeCollections;
+          const newUserAnimes = [...userDoc.animeCollections, anime.id];
+
           if (newUserAnimes) {
-            await UserService.updateUserById(user.uid, {
+            await updateDoc(userRef, {
               ...userDoc,
-              animeCollections: [...newUserAnimes, anime.id],
+              animeCollections: newUserAnimes,
             });
           }
         }
+        dispatch(getAnimeById(anime.id));
+        dispatch(getUserDoc(user.uid));
       }
-      dispatch(getAnime(anime.id));
-      dispatch(getUserAnimeCollection(user?.uid));
     } catch (error: any) {
-      const message = error.message;
-
-      return isRejectedWithValue(message);
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -128,7 +174,9 @@ const initialState = {
     contributedBy: "",
   },
   status: "idle",
+  isLoaded: false,
   message: "",
+  messageType: "info",
 } as InitialAnimeState;
 
 export const animeSlice = createSlice({
@@ -154,6 +202,12 @@ export const animeSlice = createSlice({
     ) => {
       state.message = action.payload;
     },
+    setMessageType: (
+      state: InitialAnimeState,
+      action: PayloadAction<InitialAnimeState["messageType"]>
+    ) => {
+      state.messageType = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -161,12 +215,14 @@ export const animeSlice = createSlice({
         state.status = "loading";
       })
       .addCase(getAnimes.fulfilled, (state, action) => {
-        state.status = "idle";
+        state.status = "success";
+        state.isLoaded = true;
         state.animes = action.payload;
       })
       .addCase(getAnimes.rejected, (state, action) => {
         state.status = "error";
         state.message = action.payload as string;
+        state.messageType = "error";
       })
       .addCase(getTopAnimes.pending, (state) => {
         state.status = "loading";
@@ -178,30 +234,34 @@ export const animeSlice = createSlice({
       .addCase(getTopAnimes.rejected, (state, action) => {
         state.status = "error";
         state.message = action.payload as string;
+        state.messageType = "error";
       })
-      .addCase(getAnime.pending, (state) => {
+      .addCase(getAnimeById.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(getAnime.fulfilled, (state, action) => {
+      .addCase(getAnimeById.fulfilled, (state, action) => {
         state.status = "success";
-        state.anime = action.payload;
+        state.anime = action.payload as Anime;
       })
-      .addCase(getAnime.rejected, (state, action) => {
+      .addCase(getAnimeById.rejected, (state, action) => {
         state.status = "error";
         state.message = action.payload as string;
+        state.messageType = "error";
       })
       .addCase(likeAnime.pending, (state) => {
-        state.status = "loading";
+        state.status = "loading_like";
       })
       .addCase(likeAnime.fulfilled, (state, action) => {
-        state.status = "success";
+        state.status = "like_success";
       })
       .addCase(likeAnime.rejected, (state, action) => {
         state.status = "error";
         state.message = action.payload as string;
+        state.messageType = "error";
       });
   },
 });
 
-export const { reset, setAnime, setAnimes, setMessage } = animeSlice.actions;
+export const { reset, setAnime, setAnimes, setMessage, setMessageType } =
+  animeSlice.actions;
 export default animeSlice.reducer;

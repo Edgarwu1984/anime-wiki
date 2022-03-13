@@ -10,6 +10,7 @@ import { loginUser } from "src/features/user/userSlice";
 import MessageBox from "src/components/MessageBox";
 
 const LoginPage = () => {
+  document.title = "AnimeWiki - Login";
   const navigator = useNavigate();
   const validationSchema = Yup.object().shape({
     email: Yup.string().required("Email is required").email("Email is invalid"),

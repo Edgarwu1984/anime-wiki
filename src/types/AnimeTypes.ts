@@ -19,6 +19,14 @@ export interface Anime {
 export interface InitialAnimeState {
   animes: Anime[];
   anime: Anime;
-  status: "loading" | "success" | "error" | "idle";
+  status:
+    | "loading"
+    | "success"
+    | "error"
+    | "idle"
+    | "loading_like"
+    | "like_success";
+  isLoaded: boolean;
   message: string;
+  messageType: "info" | "success" | "error" | "warning";
 }

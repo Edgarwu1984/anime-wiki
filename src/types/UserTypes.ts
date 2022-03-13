@@ -2,14 +2,15 @@ import { User } from "firebase/auth";
 import { Anime } from "./AnimeTypes";
 
 export interface UserDoc {
-  uid: string | undefined;
-  animeCollections: string[] | undefined;
-  isAdmin: boolean | undefined;
+  uid: string;
+  username: string;
+  animeCollections: string[];
+  isAdmin: boolean;
 }
 
 export interface InitialUserStateTypes {
   user: User | null;
-  userDoc: UserDoc | undefined;
+  userDoc: UserDoc;
   userAnimes: Anime[];
   userContribution: Anime[];
   status:
@@ -29,5 +30,7 @@ export interface InitialUserStateTypes {
     | "success"
     | "error"
     | "idle";
+  isLoaded: boolean;
   message: string;
+  messageType: "info" | "success" | "error" | "warning";
 }

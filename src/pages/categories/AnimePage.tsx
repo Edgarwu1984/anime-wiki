@@ -3,20 +3,25 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Dialog, Transition } from "@headlessui/react";
 // Redux
 import { useAppDispatch, useAppSelector } from "src/app/store";
-import { getAnime, likeAnime } from "src/features/anime/animeSlice";
+import { getAnimeById, likeAnime } from "src/features/anime/animeSlice";
+import {
+  getUserAnimeCollection,
+  getUserDoc,
+} from "src/features/user/userSlice";
 // Components
 import Container from "src/components/common/Container";
 import Text from "src/components/common/Text";
 import Layout from "src/components/Layout";
 import Hero from "src/components/Layout/Hero";
-import Loader from "src/components/Loader";
 import SectionTitle from "src/components/SectionTitle";
+import AlertModal from "src/components/Modal/AlertModal";
+import ImageModal from "src/components/Modal/ImageModal";
 // React Icons
 import { FaRegHeart, FaHeart } from "react-icons/fa";
+import { CgSpinnerTwo } from "react-icons/cg";
+import { MdArrowBackIosNew } from "react-icons/md";
 // Utils
 import ResetPagePosition from "src/utils/resetPagePosition";
-import { MdArrowBackIosNew } from "react-icons/md";
-import { getUserAnimeCollection } from "src/features/user/userSlice";
 
 const AnimePage = () => {
   const params = useParams();
@@ -26,17 +31,27 @@ const AnimePage = () => {
   const [image, setImage] = useState("");
   // Redux Selector
   const dispatch = useAppDispatch();
-  const { anime, status } = useAppSelector((state) => state.anime);
-  const { user, userAnimes } = useAppSelector((state) => state.user);
+  const {
+    anime,
+    status,
+    message: AnimeMessage,
+    messageType: animeMessageType,
+  } = useAppSelector((state) => state.anime);
+  const { user, userDoc } = useAppSelector((state) => state.user);
 
   ResetPagePosition(pathname);
 
-  const hasCollected = userAnimes.some((item) => item.id === params.id);
+  const hasCollected = userDoc.animeCollections.some(
+    (item) => item === params.id
+  );
 
   useEffect(() => {
-    dispatch(getAnime(`${params.id}`));
-    dispatch(getUserAnimeCollection(user?.uid));
-  }, [dispatch, params.id, user?.uid]);
+    dispatch(getAnimeById(`${params.id}`));
+    if (user) {
+      dispatch(getUserAnimeCollection(user?.uid));
+      dispatch(getUserDoc(user?.uid));
+    }
+  }, [dispatch, params.id, user, user?.uid]);
 
   const modalOpenHandler = (imgUrl: string) => {
     setIsOpen(true);
@@ -52,33 +67,16 @@ const AnimePage = () => {
   };
 
   return (
-    <Layout>
-      <Transition show={isOpen} as={Fragment}>
-        <Dialog
-          open={isOpen}
-          onClose={() => setIsOpen(false)}
-          className="fixed inset-0 z-10 overflow-y-auto"
-        >
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="flex min-h-screen items-center justify-center">
-              <Dialog.Overlay className="fixed inset-0 bg-black opacity-30" />
-              <img
-                className="h-[80vh] w-auto rounded-2xl"
-                src={image}
-                alt="img"
-              />
-            </div>
-          </Transition.Child>
-        </Dialog>
-      </Transition>
+    <Layout pageTitle={`${anime.title}`}>
+      {AnimeMessage && (
+        <AlertModal
+          message={AnimeMessage}
+          type={animeMessageType}
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+        />
+      )}
+      <ImageModal isOpen={isOpen} setIsOpen={setIsOpen} image={image} />
       <Hero heroType="heroSub" bgImage={anime?.bannerImage}>
         <Container className="flex h-full flex-col items-start justify-center">
           <div className="mb-4 w-full">
@@ -93,7 +91,7 @@ const AnimePage = () => {
           <Text as="h2" className="mb-5 font-title text-sky-500">
             {anime?.title}
           </Text>
-          <div className="mb-3 space-x-4">
+          <div className="mb-6 space-x-4">
             <Text
               as="label"
               className="w-fit rounded-xl border-[1px] border-sky-500 bg-slate-900 px-3 py-1 text-sm font-medium text-sky-500"
@@ -107,7 +105,7 @@ const AnimePage = () => {
               {anime?.category}
             </Text>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex space-x-4">
               <Text>
                 <strong>Release Year:</strong> {anime?.releaseYear}
@@ -123,7 +121,9 @@ const AnimePage = () => {
               <Text className="flex items-center text-slate-400">
                 {anime?.likes} Likes
               </Text>
-              {hasCollected ? (
+              {status === "loading_like" ? (
+                <CgSpinnerTwo className="mr-2 animate-spin text-xl text-slate-500" />
+              ) : hasCollected ? (
                 <FaHeart
                   className="mr-2 text-red-600 transition hover:cursor-pointer hover:text-lg"
                   onClick={likeHandler}

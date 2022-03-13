@@ -21,9 +21,10 @@ import SectionTitle from "src/components/SectionTitle";
 function ProfilePage() {
   const navigator = useNavigate();
   const dispatch = useAppDispatch();
-  const { user, userAnimes, userContribution, status } = useAppSelector(
+  const { user, userAnimes, userContribution } = useAppSelector(
     (state) => state.user
   );
+  const { status } = useAppSelector((state) => state.anime);
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -41,7 +42,7 @@ function ProfilePage() {
   }, [dispatch, navigator, user]);
 
   return (
-    <Layout>
+    <Layout pageTitle="Profile">
       <UserEditModal isOpen={isOpen} setIsOpen={setIsOpen} user={user} />
       <Hero heroType="heroSub" height="300px" bgImage="/images/bg_galaxy.png">
         <Container className="flex h-full flex-col items-start justify-center space-y-4">
@@ -85,11 +86,21 @@ function ProfilePage() {
       <Container>
         <section>
           <SectionTitle title="My Collection" />
-          <AnimeList data={userAnimes} status={status} listType="row" />
+          <AnimeList
+            data={userAnimes}
+            status={status}
+            layout="column"
+            listType="collection_list"
+          />
         </section>
         <section>
           <SectionTitle title="My Contribution" />
-          <AnimeList data={userContribution} status={status} listType="row" />
+          <AnimeList
+            data={userContribution}
+            status={status}
+            layout="column"
+            listType="contribution_list"
+          />
         </section>
       </Container>
     </Layout>

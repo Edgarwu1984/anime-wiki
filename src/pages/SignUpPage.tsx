@@ -28,6 +28,8 @@ const SignUpPage = () => {
   const dispatch = useAppDispatch();
   const { status } = useAppSelector((state) => state.user);
 
+  document.title = "AnimeWiki - Register";
+
   const {
     handleSubmit,
     register,
