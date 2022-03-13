@@ -1,5 +1,6 @@
 // React router
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AddAnimePage from "./pages/AddAnimePage";
 import CategoriesPage from "./pages/categories";
 import AnimePage from "./pages/categories/AnimePage";
 import ResultsPage from "./pages/categories/ResultsPage";
@@ -17,6 +18,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<SignUpPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/create-anime" element={<AddAnimePage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/categories/results" element={<ResultsPage />} />
           <Route path="/categories/:id" element={<AnimePage />} />

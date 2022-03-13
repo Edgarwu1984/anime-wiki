@@ -125,6 +125,7 @@ const initialState = {
     featureImage: "",
     galleries: [],
     likes: 0,
+    contributedBy: "",
   },
   status: "idle",
   message: "",

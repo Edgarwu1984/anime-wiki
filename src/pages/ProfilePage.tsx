@@ -1,8 +1,15 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+// REACT ICONS
 import { FaUserEdit } from "react-icons/fa";
 import { MdArrowBackIosNew } from "react-icons/md";
-import { Link, useNavigate } from "react-router-dom";
+// REDUX
 import { useAppDispatch, useAppSelector } from "src/app/store";
+import {
+  getUserAnimeCollection,
+  getUserContributions,
+} from "src/features/user/userSlice";
+// COMPONENTS
 import AnimeList from "src/components/AnimeList";
 import Container from "src/components/common/Container";
 import Text from "src/components/common/Text";
@@ -10,12 +17,14 @@ import Layout from "src/components/Layout";
 import Hero from "src/components/Layout/Hero";
 import UserEditModal from "src/components/Modal/UserEditModal";
 import SectionTitle from "src/components/SectionTitle";
-import { getUserAnimeCollection } from "src/features/user/userSlice";
 
 function ProfilePage() {
   const navigator = useNavigate();
   const dispatch = useAppDispatch();
-  const { user, userAnimes, status } = useAppSelector((state) => state.user);
+  const { user, userAnimes, userContribution, status } = useAppSelector(
+    (state) => state.user
+  );
+
   const [isOpen, setIsOpen] = useState(false);
 
   const modalOpenHandler = () => {
@@ -26,7 +35,9 @@ function ProfilePage() {
     if (user === null) {
       navigator("/");
     }
+
     dispatch(getUserAnimeCollection(user?.uid));
+    dispatch(getUserContributions(user?.uid));
   }, [dispatch, navigator, user]);
 
   return (
@@ -57,7 +68,9 @@ function ProfilePage() {
               Hello, {user?.displayName}
             </Text>
             <Text as="p" className="test-slate-100">
-              Last time logged in: {user?.metadata.lastSignInTime}
+              Last time logged in:{" "}
+              {user?.metadata?.lastSignInTime &&
+                new Date(user?.metadata?.lastSignInTime).toLocaleDateString()}
             </Text>
             <div
               className=" flex items-center justify-center rounded-full bg-slate-900 px-2 text-sky-500 hover:cursor-pointer"
@@ -71,8 +84,12 @@ function ProfilePage() {
       </Hero>
       <Container>
         <section>
-          <SectionTitle title="My Animes" />
+          <SectionTitle title="My Collection" />
           <AnimeList data={userAnimes} status={status} listType="row" />
+        </section>
+        <section>
+          <SectionTitle title="My Contribution" />
+          <AnimeList data={userContribution} status={status} listType="row" />
         </section>
       </Container>
     </Layout>

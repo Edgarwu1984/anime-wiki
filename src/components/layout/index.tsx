@@ -1,6 +1,6 @@
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
 // Components
-import Footer from './Footer';
+import Footer from "./Footer";
 
 type Props = {
   children: ReactNode;
@@ -8,7 +8,7 @@ type Props = {
 };
 
 const Layout = ({ pageTitle, children }: Props) => {
-  document.title = `AnimeWiki - ${pageTitle}`;
+  document.title = `AnimeWiki`;
 
   return (
     <>

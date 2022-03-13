@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from "react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Dialog, Transition } from "@headlessui/react";
 // Redux
 import { useAppDispatch, useAppSelector } from "src/app/store";
@@ -21,8 +21,10 @@ import { getUserAnimeCollection } from "src/features/user/userSlice";
 const AnimePage = () => {
   const params = useParams();
   const { pathname } = useLocation();
+  const navigator = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [image, setImage] = useState("");
+  // Redux Selector
   const dispatch = useAppDispatch();
   const { anime, status } = useAppSelector((state) => state.anime);
   const { user, userAnimes } = useAppSelector((state) => state.user);
@@ -42,134 +44,132 @@ const AnimePage = () => {
   };
 
   const likeHandler = () => {
-    dispatch(likeAnime({ anime, user }));
+    if (!user) {
+      navigator("/login");
+    } else {
+      dispatch(likeAnime({ anime, user }));
+    }
   };
 
   return (
-    <>
-      {status === "loading" ? (
-        <Loader />
-      ) : (
-        <Layout>
-          <Transition show={isOpen} as={Fragment}>
-            <Dialog
-              open={isOpen}
-              onClose={() => setIsOpen(false)}
-              className="fixed inset-0 z-10 overflow-y-auto"
+    <Layout>
+      <Transition show={isOpen} as={Fragment}>
+        <Dialog
+          open={isOpen}
+          onClose={() => setIsOpen(false)}
+          className="fixed inset-0 z-10 overflow-y-auto"
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="flex min-h-screen items-center justify-center">
+              <Dialog.Overlay className="fixed inset-0 bg-black opacity-30" />
+              <img
+                className="h-[80vh] w-auto rounded-2xl"
+                src={image}
+                alt="img"
+              />
+            </div>
+          </Transition.Child>
+        </Dialog>
+      </Transition>
+      <Hero heroType="heroSub" bgImage={anime?.bannerImage}>
+        <Container className="flex h-full flex-col items-start justify-center">
+          <div className="mb-4 w-full">
+            <Link
+              to="/categories"
+              className="flex w-fit items-center text-lg hover:text-sky-500"
             >
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <div className="flex min-h-screen items-center justify-center">
-                  <Dialog.Overlay className="fixed inset-0 bg-black opacity-30" />
-                  <img
-                    className="h-[80vh] w-auto rounded-2xl"
-                    src={image}
-                    alt="img"
-                  />
-                </div>
-              </Transition.Child>
-            </Dialog>
-          </Transition>
-          <Hero heroType="heroSub" bgImage={anime?.bannerImage}>
-            <Container className="flex h-full flex-col items-start justify-center">
-              <div className="mb-4 w-full">
-                <Link
-                  to="/categories"
-                  className="flex w-fit items-center text-lg hover:text-sky-500"
-                >
-                  <MdArrowBackIosNew />
-                  Back
-                </Link>
-              </div>
-              <Text as="h2" className="mb-5 font-title text-sky-500">
-                {anime?.title}
+              <MdArrowBackIosNew />
+              Back
+            </Link>
+          </div>
+          <Text as="h2" className="mb-5 font-title text-sky-500">
+            {anime?.title}
+          </Text>
+          <div className="mb-3 space-x-4">
+            <Text
+              as="label"
+              className="w-fit rounded-xl border-[1px] border-sky-500 bg-slate-900 px-3 py-1 text-sm font-medium text-sky-500"
+            >
+              {anime?.genre}
+            </Text>
+            <Text
+              as="label"
+              className="w-fit rounded-xl border-[1px] border-sky-500 bg-slate-900 px-3 py-1 text-sm font-medium text-sky-500"
+            >
+              {anime?.category}
+            </Text>
+          </div>
+          <div className="space-y-2">
+            <div className="flex space-x-4">
+              <Text>
+                <strong>Release Year:</strong> {anime?.releaseYear}
               </Text>
-              <div className="mb-3 space-x-4">
-                <Text
-                  as="label"
-                  className="w-fit rounded-xl border-[1px] border-sky-500 bg-slate-900 px-3 py-1 text-sm font-medium text-sky-500"
-                >
-                  {anime?.genre}
-                </Text>
-                <Text
-                  as="label"
-                  className="w-fit rounded-xl border-[1px] border-sky-500 bg-slate-900 px-3 py-1 text-sm font-medium text-sky-500"
-                >
-                  {anime?.category}
-                </Text>
-              </div>
-              <div className="space-y-2">
-                <div className="flex space-x-4">
-                  <Text>
-                    <strong>Release Year:</strong> {anime?.releaseYear}
-                  </Text>
-                  <Text>
-                    <strong>Region:</strong> {anime?.region}
-                  </Text>
-                </div>
-                <Text>
-                  <strong>Directed By:</strong> {anime?.directedBy}
-                </Text>
-                <div className="flex items-center space-x-4">
-                  <Text className="flex items-center text-slate-400">
-                    {anime?.likes} Likes
-                  </Text>
-                  {hasCollected ? (
-                    <FaHeart
-                      className="mr-2 text-red-600 transition hover:cursor-pointer hover:text-lg"
-                      onClick={likeHandler}
-                    />
-                  ) : (
-                    <FaRegHeart
-                      className="mr-2 transition hover:cursor-pointer hover:text-lg"
-                      onClick={likeHandler}
-                    />
-                  )}
-                </div>
-              </div>
-            </Container>
-          </Hero>
-          <Container>
-            <section>
-              <SectionTitle title="Intro" />
-              <div>
-                <img
-                  className="float-right w-48 rounded-2xl pl-2 pb-1 md:w-72 lg:w-96"
-                  src={anime?.featureImage}
-                  alt={anime?.slug}
+              <Text>
+                <strong>Region:</strong> {anime?.region}
+              </Text>
+            </div>
+            <Text>
+              <strong>Directed By:</strong> {anime?.directedBy}
+            </Text>
+            <div className="flex items-center space-x-4">
+              <Text className="flex items-center text-slate-400">
+                {anime?.likes} Likes
+              </Text>
+              {hasCollected ? (
+                <FaHeart
+                  className="mr-2 text-red-600 transition hover:cursor-pointer hover:text-lg"
+                  onClick={likeHandler}
                 />
-                <Text as="p">{anime?.description}</Text>
+              ) : (
+                <FaRegHeart
+                  className="mr-2 transition hover:cursor-pointer hover:text-lg"
+                  onClick={likeHandler}
+                />
+              )}
+            </div>
+          </div>
+        </Container>
+      </Hero>
+      <Container>
+        <section>
+          <SectionTitle title="Intro" />
+          <div>
+            <img
+              className="float-right w-48 rounded-2xl pl-2 pb-1 md:w-72 lg:w-96"
+              src={anime?.featureImage}
+              alt={anime?.slug}
+            />
+            <Text as="p">{anime?.description}</Text>
+          </div>
+        </section>
+        <section>
+          <SectionTitle title="Gallery" />
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4">
+            {anime?.galleries?.map((img, i) => (
+              <div
+                key={i}
+                className="w-90 h-48 overflow-hidden rounded-2xl  hover:cursor-pointer hover:shadow-xl"
+                onClick={() => modalOpenHandler(img)}
+              >
+                <img
+                  className="h-full w-full object-cover object-top  transition-transform hover:scale-[103%]"
+                  src={img}
+                  alt={`img_${i}`}
+                />
               </div>
-            </section>
-            <section>
-              <SectionTitle title="Gallery" />
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4">
-                {anime?.galleries?.map((img, i) => (
-                  <div
-                    key={i}
-                    className="w-90 h-48 overflow-hidden rounded-2xl  hover:cursor-pointer hover:shadow-xl"
-                    onClick={() => modalOpenHandler(img)}
-                  >
-                    <img
-                      className="h-full w-full object-cover object-top  transition-transform hover:scale-[103%]"
-                      src={img}
-                      alt={`img_${i}`}
-                    />
-                  </div>
-                ))}
-              </div>
-            </section>
-          </Container>
-        </Layout>
-      )}
-    </>
+            ))}
+          </div>
+        </section>
+      </Container>
+    </Layout>
   );
 };
 

@@ -119,10 +119,24 @@ export const getUserAnimeCollection = createAsyncThunk(
   }
 );
 
+export const getUserContributions = createAsyncThunk(
+  "user/userContribution",
+  async (uid: any, thunkAPI) => {
+    try {
+      const animes = await UserService.getUserContribution(uid);
+      return animes;
+    } catch (error: any) {
+      const message = error.message;
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 const initialState = {
   user: null,
   userDoc: undefined,
   userAnimes: [],
+  userContribution: [],
   status: "idle",
   message: "",
 } as InitialUserStateTypes;
@@ -153,36 +167,36 @@ export const userSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(registerUser.pending, (state) => {
-        state.status = "loading";
+        state.status = "registering_user";
       })
       .addCase(registerUser.fulfilled, (state, action) => {
-        state.status = "success";
+        state.status = "register_success";
         state.user = action.payload as User;
       })
       .addCase(registerUser.rejected, (state, action) => {
-        state.status = "error";
+        state.status = "register_error";
         state.message = action.payload as string;
       })
       .addCase(loginUser.pending, (state) => {
-        state.status = "loading";
+        state.status = "login_user";
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        state.status = "success";
+        state.status = "login_success";
         state.user = action.payload as User;
       })
       .addCase(loginUser.rejected, (state, action) => {
-        state.status = "error";
+        state.status = "login_error";
         state.message = action.payload as string;
       })
       .addCase(logoutUser.pending, (state) => {
-        state.status = "loading";
+        state.status = "logout_user";
       })
       .addCase(logoutUser.fulfilled, (state) => {
-        state.status = "success";
+        state.status = "logout_success";
         state.user = initialState.user;
       })
       .addCase(logoutUser.rejected, (state, action) => {
-        state.status = "error";
+        state.status = "logout_error";
         state.message = action.payload as string;
       })
       .addCase(getUser.pending, (state) => {
@@ -197,24 +211,24 @@ export const userSlice = createSlice({
         state.message = action.payload as string;
       })
       .addCase(updateUser.pending, (state) => {
-        state.status = "loading";
+        state.status = "updating_user";
       })
       .addCase(updateUser.fulfilled, (state, action) => {
-        state.status = "success";
+        state.status = "update_success";
         // state.user = action.payload as User;
       })
       .addCase(updateUser.rejected, (state, action) => {
-        state.status = "error";
+        state.status = "update_error";
         state.message = action.payload as string;
       })
       .addCase(updateUserProfile.pending, (state) => {
-        state.status = "loading";
+        state.status = "updating_user";
       })
       .addCase(updateUserProfile.fulfilled, (state) => {
-        state.status = "success";
+        state.status = "update_success";
       })
       .addCase(updateUserProfile.rejected, (state, action) => {
-        state.status = "error";
+        state.status = "update_error";
         state.message = action.payload as string;
       })
       .addCase(getUserAnimeCollection.pending, (state) => {
@@ -225,6 +239,18 @@ export const userSlice = createSlice({
         state.userAnimes = action.payload as Anime[];
       })
       .addCase(getUserAnimeCollection.rejected, (state, action) => {
+        state.status = "error";
+        state.message = action.payload as string;
+      })
+
+      .addCase(getUserContributions.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(getUserContributions.fulfilled, (state, action) => {
+        state.status = "success";
+        state.userContribution = action.payload as Anime[];
+      })
+      .addCase(getUserContributions.rejected, (state, action) => {
         state.status = "error";
         state.message = action.payload as string;
       });

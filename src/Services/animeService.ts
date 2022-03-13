@@ -8,7 +8,9 @@ import {
   limit,
   updateDoc,
 } from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { db } from "src/config/db";
+import { storage } from "src/config/db";
 import { Anime } from "src/types/AnimeTypes";
 
 // Get all animes
@@ -60,7 +62,15 @@ const updateAnime = async (id: string, data: Anime) => {
   const newData = { ...data };
 
   await updateDoc(ref, newData);
+
+  const anime = await getAnime(id);
+  return anime as Anime;
 };
+
+// Create anime
+// const createAnime = async (data:Anime)=>{
+
+// }
 
 const AnimeService = {
   getAnimes,

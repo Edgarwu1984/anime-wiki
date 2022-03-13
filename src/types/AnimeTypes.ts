@@ -13,6 +13,7 @@ export interface Anime {
   featureImage: string;
   galleries: string[];
   likes: number;
+  contributedBy: string;
 }
 
 export interface InitialAnimeState {

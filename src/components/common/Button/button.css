@@ -6,8 +6,18 @@
   @apply border-[1px] border-sky-500 bg-sky-500 text-slate-900 transition hover:border-[1px] hover:border-sky-500 hover:bg-slate-900 hover:text-sky-500;
 }
 
+.btn-danger {
+  @apply border-[1px] border-red-500 bg-red-500 text-slate-900 transition hover:border-[1px] hover:border-red-500 hover:bg-slate-900 hover:text-red-500;
+}
+
 .btn-outline {
   @apply border-[1px] border-sky-500 bg-slate-900 text-sky-500 transition hover:bg-sky-500 hover:text-slate-900;
+}
+.btn-outline-danger {
+  @apply border-[1px] border-red-500 bg-slate-900 text-red-500 transition hover:bg-red-500 hover:text-slate-900;
+}
+.btn-outline-success {
+  @apply border-[1px] border-emerald-500 bg-slate-900 text-emerald-500 transition hover:bg-emerald-500 hover:text-slate-900;
 }
 
 .btn-sm {

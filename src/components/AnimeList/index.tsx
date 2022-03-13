@@ -2,10 +2,11 @@ import { Anime } from "src/types/AnimeTypes";
 import Card from "src/components/Card";
 import Text from "src/components/common/Text";
 import CardSkeleton from "../Loader/CardSkeleton";
+import { InitialUserStateTypes } from "src/types/UserTypes";
 
 type AnimeListProps = {
   data: Anime[];
-  status: "loading" | "success" | "error" | "idle";
+  status: InitialUserStateTypes["status"];
   listType?: "row";
 };
 

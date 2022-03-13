@@ -18,7 +18,8 @@
         "https://firebasestorage.googleapis.com/v0/b/anime-wiki-93dac.appspot.com/o/images%2FTeknoman_03.jpeg?alt=media&token=d10b42b1-31d0-4157-803e-a7724cd52b2d",
         "https://firebasestorage.googleapis.com/v0/b/anime-wiki-93dac.appspot.com/o/images%2FTeknoman_04.jpeg?alt=media&token=d1c97f77-c2eb-464d-8d67-980882ef8b74"
       ],
-      "likes": 0
+      "likes": 0,
+      "contributedBy": "MzY9G5axvTRKFsb2I1WfK3NxZRC2"
     },
     {
       "slug": "macross-do-you-remember-love",
@@ -38,7 +39,8 @@
         "https://firebasestorage.googleapis.com/v0/b/anime-wiki-93dac.appspot.com/o/images%2FMacross_03.png?alt=media&token=c475e01d-b2b3-4c11-93e9-0650154531bc",
         "https://firebasestorage.googleapis.com/v0/b/anime-wiki-93dac.appspot.com/o/images%2FMacross_04.png?alt=media&token=f0c888a6-5d07-43ef-92a6-abe7f2386cb1"
       ],
-      "likes": 0
+      "likes": 0,
+      "contributedBy": "MzY9G5axvTRKFsb2I1WfK3NxZRC2"
     }
   ]
 }

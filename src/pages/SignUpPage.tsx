@@ -26,7 +26,7 @@ const SignUpPage = () => {
   });
 
   const dispatch = useAppDispatch();
-  const { user, status, message } = useAppSelector((state) => state.user);
+  const { status } = useAppSelector((state) => state.user);
 
   const {
     handleSubmit,
@@ -38,14 +38,14 @@ const SignUpPage = () => {
   });
 
   useEffect(() => {
-    if (status === "success") {
+    if (status === "register_success") {
       navigator("/");
     }
   }, [navigator, status]);
 
   const onSubmit = (formData: SignUpForm) => {
     const { username, email, password } = formData;
-    console.log({ username, email, password });
+
     dispatch(registerUser({ username, email, password }));
     reset();
   };

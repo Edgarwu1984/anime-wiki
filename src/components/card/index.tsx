@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 // Components
 import Text from "src/components/common/Text";
 // React Icons
-import { FaRegHeart, FaRegClock } from "react-icons/fa";
+import { FaRegClock } from "react-icons/fa";
 // Types
 import { Anime } from "src/types/AnimeTypes";
 
@@ -16,6 +16,7 @@ type CardProps = Omit<
   | "bannerImage"
   | "featureImage"
   | "galleries"
+  | "contributedBy"
 >;
 
 type ExtraProps = {

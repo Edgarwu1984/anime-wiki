@@ -29,7 +29,7 @@ const LoginPage = () => {
   });
 
   useEffect(() => {
-    if (status === "success") {
+    if (status === "login_success") {
       navigator("/profile");
     }
   }, [navigator, status]);

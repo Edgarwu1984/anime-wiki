@@ -121,6 +121,24 @@ const getUserAnimes = async (uid: string) => {
   return data as Anime[];
 };
 
+// Get User's contribution
+const getUserContribution = async (uid: string) => {
+  const animeRef = query(
+    collection(db, "anime_list"),
+    where("contributedBy", "==", uid)
+  );
+
+  const querySnapshot = await getDocs(animeRef);
+
+  const data = querySnapshot.docs.map((doc) => {
+    const id = doc.id;
+    const data = doc.data();
+    return { id, ...data };
+  });
+
+  return data as Anime[];
+};
+
 const UserService = {
   signupUser,
   loginUser,
@@ -130,6 +148,7 @@ const UserService = {
   updateUserById,
   deleteUserById,
   getUserAnimes,
+  getUserContribution,
 };
 
 export default UserService;

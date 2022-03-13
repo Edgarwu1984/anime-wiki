@@ -145,7 +145,7 @@ const Navbar = () => {
                         className={`${
                           active && "bg-sky-500"
                         } flex w-full items-center py-3`}
-                        to="/"
+                        to="/create-anime"
                       >
                         <BsFillBookmarkPlusFill className="mr-2 pl-2 text-2xl" />
                         Add Animes
