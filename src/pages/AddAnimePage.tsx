@@ -8,14 +8,15 @@ import {
   deleteObject,
 } from "firebase/storage";
 import { db, storage } from "src/config/db";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc } from "firebase/firestore";
 // DEPENDENCIES
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { ThreeDots } from "react-loader-spinner";
 // REACT ICONS
 import { MdArrowBackIosNew, MdDelete } from "react-icons/md";
 // REDUX
-import { useAppSelector } from "src/app/store";
+import { useAppDispatch, useAppSelector } from "src/app/store";
+import { getAnimeById } from "src/features/anime/animeSlice";
 // COMPONENTS
 import Container from "src/components/common/Container";
 import Text from "src/components/common/Text";
@@ -23,21 +24,29 @@ import Layout from "src/components/Layout";
 import Hero from "src/components/Layout/Hero";
 import SectionTitle from "src/components/SectionTitle";
 import AlertModal from "src/components/Modal/AlertModal";
+import Loader from "src/components/Loader";
 // TYPES
 import { Anime } from "src/types/AnimeTypes";
-import Loader from "src/components/Loader";
 
 function AddAnimePage() {
+  const location = useLocation();
+  const navigator = useNavigate();
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.user);
+  const { anime } = useAppSelector((state) => state.anime);
+  const isEditPage = location.pathname.split("/")[2] === "edit-anime";
+  const params = useParams();
+
   const defaultFormData: Anime = {
-    id: "",
-    slug: "",
-    title: "",
-    category: "uncategoried",
-    genre: "unknown",
-    region: "unknown",
-    directedBy: "",
-    releaseYear: "",
-    description: "",
+    id: isEditPage ? anime.id : "",
+    slug: isEditPage ? anime.slug : "",
+    title: isEditPage ? anime.title : "",
+    category: isEditPage ? anime.category : "uncategoried",
+    genre: isEditPage ? anime.genre : "unknown",
+    region: isEditPage ? anime.region : "unknown",
+    directedBy: isEditPage ? anime.directedBy : "",
+    releaseYear: isEditPage ? anime.releaseYear : "",
+    description: isEditPage ? anime.description : "",
     coverImage: "",
     bannerImage: "",
     featureImage: "",
@@ -45,16 +54,21 @@ function AddAnimePage() {
     likes: 0,
     contributedBy: "",
   };
-
-  const navigator = useNavigate();
-  const { user } = useAppSelector((state) => state.user);
   const [isOpen, setIsOpen] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<string>("uploading_idle");
   const [formData, setFormData] = useState<Anime>(defaultFormData);
-  const [coverImageUrl, setCoverImageUrl] = useState<null | string>(null);
-  const [bannerImageUrl, setBannerImageUrl] = useState<null | string>(null);
-  const [featureImageUrl, setFeatureImageUrl] = useState<null | string>(null);
-  const [galleriesUrl, setGalleriesUrl] = useState<null | string[]>(null);
+  const [coverImageUrl, setCoverImageUrl] = useState<null | string>(
+    isEditPage ? anime.coverImage : null
+  );
+  const [bannerImageUrl, setBannerImageUrl] = useState<null | string>(
+    isEditPage ? anime.bannerImage : null
+  );
+  const [featureImageUrl, setFeatureImageUrl] = useState<null | string>(
+    isEditPage ? anime.featureImage : null
+  );
+  const [galleriesUrl, setGalleriesUrl] = useState<null | string[]>(
+    isEditPage ? anime.galleries : null
+  );
   const [message, setMessage] = useState<string>("");
 
   // Declare form variables
@@ -75,7 +89,10 @@ function AddAnimePage() {
     if (user === null) {
       navigator("/");
     }
-  }, [navigator, user]);
+    if (isEditPage && params.id) {
+      dispatch(getAnimeById(`${params.id}`));
+    }
+  }, [params.id, dispatch, isEditPage, navigator, user]);
 
   // Handle Input value change
   const handleValueChange = (e: any) => {
@@ -168,7 +185,7 @@ function AddAnimePage() {
     }
   };
 
-  const onSubmit = async (e: any) => {
+  const addAnimeHandler = async (e: any) => {
     e.preventDefault();
 
     const {
@@ -226,6 +243,62 @@ function AddAnimePage() {
     }
   };
 
+  const updateAnimeHandler = async (e: any) => {
+    e.preventDefault();
+    const {
+      title,
+      category,
+      genre,
+      region,
+      directedBy,
+      releaseYear,
+      description,
+    } = formData;
+
+    if (
+      coverImageUrl === null ||
+      bannerImageUrl === null ||
+      featureImageUrl === null ||
+      galleriesUrl === null ||
+      !title ||
+      !directedBy ||
+      !releaseYear ||
+      !description
+    ) {
+      setMessage("Please make sure filling all the input filed.");
+      setIsOpen(true);
+    } else {
+      setUploadStatus("updating");
+      const getSlug = title.split(" ").join("-");
+
+      const animeRef = doc(db, "anime_list", anime.id);
+
+      await updateDoc(animeRef, {
+        title,
+        category,
+        genre,
+        region,
+        directedBy,
+        releaseYear,
+        description,
+        slug: getSlug,
+        coverImage: coverImageUrl,
+        bannerImage: bannerImageUrl,
+        featureImage: featureImageUrl,
+        galleries: galleriesUrl,
+      });
+
+      setCoverImageUrl(null);
+      setBannerImageUrl(null);
+      setFeatureImageUrl(null);
+      setGalleriesUrl(null);
+      setFormData(defaultFormData);
+      setUploadStatus("idle");
+      setIsOpen(true);
+      navigator("/profile");
+    }
+  };
+
   return (
     <Layout>
       {uploadStatus === "creating" && <Loader />}
@@ -233,23 +306,27 @@ function AddAnimePage() {
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         message={message}
-        type="error"
+        type={"error"}
       />
-      <Hero heroType="heroSub" height="300px" bgImage="/images/bg_galaxy.png">
+      <Hero
+        heroType="heroSub"
+        height="300px"
+        bgImage={isEditPage ? `${anime.bannerImage}` : "/images/bg_galaxy.png"}
+      >
         <Container className="flex h-full flex-col items-start justify-center space-y-4">
           <div className="mb-4 w-full">
-            <Link
-              to="/categories"
+            <div
               className="flex w-fit items-center text-lg hover:text-sky-500"
+              onClick={() => navigator(-1)}
             >
               <MdArrowBackIosNew />
               Back
-            </Link>
+            </div>
           </div>
 
           <div className="flex w-full flex-col items-center space-y-3">
             <Text as="h2" className="font-title text-sky-500">
-              Add Anime
+              {isEditPage ? "Edit Anime" : " Add Anime"}
             </Text>
           </div>
         </Container>
@@ -259,7 +336,7 @@ function AddAnimePage() {
           <SectionTitle title="My Animes" />
           <form
             className="h-fit w-full rounded-2xl bg-slate-800 px-6  py-6"
-            onSubmit={onSubmit}
+            onSubmit={isEditPage ? updateAnimeHandler : addAnimeHandler}
           >
             <div className="w-full">
               <div className="flex w-full gap-x-4">
@@ -604,20 +681,41 @@ function AddAnimePage() {
 
               {/* =========== Submit Button ============ */}
               <div className="flex justify-center space-y-4 pt-7">
-                <input
-                  className="btn btn-primary min-w-[200px]  disabled:cursor-not-allowed disabled:bg-sky-600 disabled:hover:bg-sky-600 disabled:hover:text-slate-900"
-                  type="submit"
-                  value={uploadStatus === "creating" ? "Creating..." : "Create"}
-                  disabled={
-                    uploadStatus === "creating" ||
-                    uploadStatus === "uploading_featureImage" ||
-                    uploadStatus === "uploading_coverImage" ||
-                    uploadStatus === "uploading_bannerImage" ||
-                    uploadStatus === "uploading_galleries"
-                      ? true
-                      : false
-                  }
-                />
+                {isEditPage ? (
+                  <input
+                    className="btn btn-primary min-w-[200px]  disabled:cursor-not-allowed disabled:bg-sky-600 disabled:hover:bg-sky-600 disabled:hover:text-slate-900"
+                    type="submit"
+                    value={
+                      uploadStatus === "updating" ? "Updating..." : "Update"
+                    }
+                    disabled={
+                      uploadStatus === "updating" ||
+                      uploadStatus === "uploading_featureImage" ||
+                      uploadStatus === "uploading_coverImage" ||
+                      uploadStatus === "uploading_bannerImage" ||
+                      uploadStatus === "uploading_galleries"
+                        ? true
+                        : false
+                    }
+                  />
+                ) : (
+                  <input
+                    className="btn btn-primary min-w-[200px]  disabled:cursor-not-allowed disabled:bg-sky-600 disabled:hover:bg-sky-600 disabled:hover:text-slate-900"
+                    type="submit"
+                    value={
+                      uploadStatus === "creating" ? "Creating..." : "Create"
+                    }
+                    disabled={
+                      uploadStatus === "creating" ||
+                      uploadStatus === "uploading_featureImage" ||
+                      uploadStatus === "uploading_coverImage" ||
+                      uploadStatus === "uploading_bannerImage" ||
+                      uploadStatus === "uploading_galleries"
+                        ? true
+                        : false
+                    }
+                  />
+                )}
               </div>
             </div>
           </form>

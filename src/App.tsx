@@ -19,6 +19,7 @@ function App() {
           <Route path="/register" element={<SignUpPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/create-anime" element={<AddAnimePage />} />
+          <Route path="/:id/edit-anime" element={<AddAnimePage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/categories/results" element={<ResultsPage />} />
           <Route path="/categories/:id" element={<AnimePage />} />

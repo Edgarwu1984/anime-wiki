@@ -73,9 +73,12 @@ const Card = ({
           </div>
           {hasButton && (
             <div className="absolute right-6 top-[50%] flex translate-y-[-50%] space-x-5">
-              <div className="cursor-pointer rounded-xl bg-slate-800 p-2 text-2xl text-emerald-500 transition hover:bg-slate-700">
+              <Link
+                to={`/${id}/edit-anime`}
+                className="cursor-pointer rounded-xl bg-slate-800 p-2 text-2xl text-emerald-500 transition hover:bg-slate-700"
+              >
                 <MdModeEdit />
-              </div>
+              </Link>
 
               <div
                 className="cursor-pointer rounded-xl bg-slate-800 p-2 text-2xl text-red-500 transition hover:bg-slate-700"

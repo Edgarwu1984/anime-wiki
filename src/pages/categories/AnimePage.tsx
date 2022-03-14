@@ -1,6 +1,5 @@
-import { Fragment, useEffect, useState } from "react";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { Dialog, Transition } from "@headlessui/react";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 // Redux
 import { useAppDispatch, useAppSelector } from "src/app/store";
 import { getAnimeById, likeAnime } from "src/features/anime/animeSlice";
@@ -83,13 +82,13 @@ const AnimePage = () => {
       <Hero heroType="heroSub" bgImage={anime?.bannerImage}>
         <Container className="flex h-full flex-col items-start justify-center">
           <div className="mb-4 w-full">
-            <Link
-              to="/categories"
+            <div
               className="flex w-fit items-center text-lg hover:text-sky-500"
+              onClick={() => navigator(-1)}
             >
               <MdArrowBackIosNew />
               Back
-            </Link>
+            </div>
           </div>
           <Text as="h2" className="mb-5 font-title text-sky-500">
             {anime?.title}
