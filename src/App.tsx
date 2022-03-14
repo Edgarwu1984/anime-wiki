@@ -4,6 +4,7 @@ import AddAnimePage from "./pages/AddAnimePage";
 import CategoriesPage from "./pages/categories";
 import AnimePage from "./pages/categories/AnimePage";
 import ResultsPage from "./pages/categories/ResultsPage";
+import EditAnimePage from "./pages/EditAnimePage";
 import HomePage from "./pages/home";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -19,7 +20,7 @@ function App() {
           <Route path="/register" element={<SignUpPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/create-anime" element={<AddAnimePage />} />
-          <Route path="/:id/edit-anime" element={<AddAnimePage />} />
+          <Route path="/:id/edit-anime" element={<EditAnimePage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/categories/results" element={<ResultsPage />} />
           <Route path="/categories/:id" element={<AnimePage />} />

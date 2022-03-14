@@ -127,7 +127,7 @@ const Card = ({
         >
           <div className="card-image-wrap h-[20rem] w-full overflow-hidden rounded-2xl">
             <img
-              className="card-image w-full object-cover transition-transform hover:scale-[105%]"
+              className="card-image h-full w-full object-cover transition-transform hover:scale-[105%]"
               src={`${coverImage}`}
               alt={slug}
             />

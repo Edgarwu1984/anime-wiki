@@ -39,7 +39,11 @@ function ProfilePage() {
     if (user === null) {
       navigator("/");
     }
-    if (status === "delete_success" || status === "success") {
+    if (
+      status === "delete_success" ||
+      status === "success" ||
+      status === "update_success"
+    ) {
       dispatch(getUserAnimeCollection(user?.uid));
       dispatch(getUserContributions(user?.uid));
     }

@@ -3,7 +3,7 @@ export interface Anime {
   slug: string;
   title: string;
   category: "80s" | "90s" | "uncategoried";
-  genre: "Sci-Fi" | "Action" | "unknown";
+  genre: "Sci-Fi" | "Action" | "Sport" | "Adventurer" | "unknown";
   region: "Japan" | "US" | "unknown";
   directedBy: string;
   releaseYear: string;
@@ -24,6 +24,8 @@ export interface InitialAnimeState {
     | "success"
     | "error"
     | "idle"
+    | "loading_update"
+    | "update_success"
     | "loading_delete"
     | "delete_success"
     | "loading_like"

@@ -46,7 +46,7 @@ export const getTopAnimes = createAsyncThunk(
       const ref = query(
         collection(db, "anime_list"),
         orderBy("likes", "desc"),
-        limit(4)
+        limit(5)
       );
       const snapshot = await getDocs(ref);
       const data = snapshot.docs.map((doc) => {
@@ -81,6 +81,23 @@ export const postAnime = createAsyncThunk(
   }
 );
 
+export const updateAnime = createAsyncThunk(
+  "animes/updateAnime",
+  async (data: Anime, { dispatch, rejectWithValue }) => {
+    try {
+      if (!data) {
+        dispatch(setMessageType("error"));
+        dispatch(setMessage("Invalid Data"));
+      } else {
+        const animeRef = doc(db, "anime_list", data.id);
+        await updateDoc(animeRef, { ...data });
+      }
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 export const getAnimeById = createAsyncThunk(
   "animes/getAnimeById",
   async (id: string, { dispatch, rejectWithValue }) => {
@@ -108,6 +125,8 @@ export const deleteAnimeById = createAsyncThunk(
 
     try {
       const animeRef = doc(db, "anime_list", id);
+      await deleteDoc(animeRef);
+
       const animeSnapshot = await getDoc(animeRef);
       const anime = animeSnapshot.data() as Anime;
 
@@ -135,7 +154,6 @@ export const deleteAnimeById = createAsyncThunk(
         }
       }
 
-      await deleteDoc(animeRef);
       dispatch(setMessageType("success"));
       dispatch(setMessage("Anime has been deleted."));
       dispatch(getUserContributions(user?.uid));
@@ -290,6 +308,17 @@ export const animeSlice = createSlice({
         state.anime = action.payload as Anime;
       })
       .addCase(getAnimeById.rejected, (state, action) => {
+        state.status = "error";
+        state.message = action.payload as string;
+        state.messageType = "error";
+      })
+      .addCase(updateAnime.pending, (state) => {
+        state.status = "loading_update";
+      })
+      .addCase(updateAnime.fulfilled, (state) => {
+        state.status = "update_success";
+      })
+      .addCase(updateAnime.rejected, (state, action) => {
         state.status = "error";
         state.message = action.payload as string;
         state.messageType = "error";

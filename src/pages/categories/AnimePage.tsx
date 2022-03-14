@@ -83,7 +83,7 @@ const AnimePage = () => {
         <Container className="flex h-full flex-col items-start justify-center">
           <div className="mb-4 w-full">
             <div
-              className="flex w-fit items-center text-lg hover:text-sky-500"
+              className="flex w-fit cursor-pointer items-center text-lg hover:text-sky-500"
               onClick={() => navigator(-1)}
             >
               <MdArrowBackIosNew />

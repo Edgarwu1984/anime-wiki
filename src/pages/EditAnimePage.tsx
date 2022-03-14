@@ -8,14 +8,15 @@ import {
   deleteObject,
 } from "firebase/storage";
 import { db, storage } from "src/config/db";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc } from "firebase/firestore";
 // DEPENDENCIES
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { ThreeDots } from "react-loader-spinner";
 // REACT ICONS
 import { MdArrowBackIosNew, MdDelete } from "react-icons/md";
 // REDUX
-import { useAppSelector } from "src/app/store";
+import { useAppDispatch, useAppSelector } from "src/app/store";
+import { getAnimeById, updateAnime } from "src/features/anime/animeSlice";
 // COMPONENTS
 import Container from "src/components/common/Container";
 import Text from "src/components/common/Text";
@@ -27,11 +28,7 @@ import Loader from "src/components/Loader";
 // TYPES
 import { Anime } from "src/types/AnimeTypes";
 
-function AddAnimePage() {
-  const navigator = useNavigate();
-  const { user } = useAppSelector((state) => state.user);
-  const { status } = useAppSelector((state) => state.anime);
-
+function EditAnimePage() {
   const defaultFormData: Anime = {
     id: "",
     slug: "",
@@ -49,26 +46,15 @@ function AddAnimePage() {
     likes: 0,
     contributedBy: "",
   };
+  const params = useParams();
+  const navigator = useNavigate();
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.user);
+  const { anime, status } = useAppSelector((state) => state.anime);
   const [isOpen, setIsOpen] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<string>("uploading_idle");
   const [formData, setFormData] = useState<Anime>(defaultFormData);
-  const [coverImageUrl, setCoverImageUrl] = useState<null | string>(null);
-
-  const [bannerImageUrl, setBannerImageUrl] = useState<null | string>(null);
-  const [featureImageUrl, setFeatureImageUrl] = useState<null | string>(null);
-  const [galleriesUrl, setGalleriesUrl] = useState<null | string[]>(null);
   const [message, setMessage] = useState<string>("");
-
-  // Declare form variables
-  const {
-    title,
-    category,
-    genre,
-    region,
-    directedBy,
-    releaseYear,
-    description,
-  } = formData;
 
   // Generate timestamp
   const timestamp = Math.round(+new Date() / 1000);
@@ -77,7 +63,14 @@ function AddAnimePage() {
     if (user === null) {
       navigator("/");
     }
-  }, [navigator, user]);
+  }, [dispatch, formData, navigator, uploadStatus, user]);
+
+  useEffect(() => {
+    if (params.id) {
+      dispatch(getAnimeById(`${params.id}`));
+      setFormData((data) => ({ ...data, ...anime }));
+    }
+  }, [anime, dispatch, params.id]);
 
   // Handle Input value change
   const handleValueChange = (e: any) => {
@@ -99,17 +92,22 @@ function AddAnimePage() {
         if ((await uploadTask).state === "success") {
           const url = await getDownloadURL(uploadTask.snapshot.ref);
           const targetName = e.target.name;
-
+          let newImageUrl = "";
           if (targetName === "coverImage") {
-            setCoverImageUrl(url);
+            newImageUrl = formData.coverImage = url;
+            setFormData({ ...formData, coverImage: newImageUrl });
           } else if (targetName === "bannerImage") {
-            setBannerImageUrl(url);
+            newImageUrl = formData.bannerImage = url;
+            setFormData({ ...formData, bannerImage: url });
           } else if (targetName === "featureImage") {
-            setFeatureImageUrl(url);
+            newImageUrl = formData.featureImage = url;
+            setFormData({ ...formData, featureImage: newImageUrl });
           }
-          setUploadStatus("uploading_idle");
+
+          setUploadStatus("upload_success");
           e.target.value = "";
         }
+        dispatch(updateAnime(formData));
       }
     } catch (error) {
       console.log(error);
@@ -136,13 +134,17 @@ function AddAnimePage() {
           const url = await getDownloadURL(uploadTask.snapshot.ref);
 
           galleryArray.push(url);
-          if (galleriesUrl !== null && galleriesUrl.length > 0) {
-            galleryArray = galleriesUrl.concat(galleryArray);
+          if (formData.galleries.length > 0) {
+            galleryArray = formData.galleries.concat(galleryArray);
           }
         }
       }
 
-      setGalleriesUrl(galleryArray);
+      setFormData({
+        ...formData,
+        galleries: (formData.galleries = galleryArray),
+      });
+      dispatch(updateAnime(formData));
       setUploadStatus("uploading_idle");
       e.target.value = "";
     }
@@ -156,48 +158,48 @@ function AddAnimePage() {
       const storage = getStorage();
       const imageName = url.split("images%2F")[1].split("?")[0];
       const imageRef = ref(storage, `images/${imageName}`);
+      await deleteObject(imageRef);
 
-      if (imageType === "coverImage" && coverImageUrl) {
-        if (imageRef) await deleteObject(imageRef);
-        setCoverImageUrl(null);
+      if (imageType === "coverImage" && formData.coverImage) {
+        setFormData({ ...anime, coverImage: "" });
       }
-      if (imageType === "bannerImage" && bannerImageUrl) {
-        await deleteObject(imageRef);
-        setBannerImageUrl(null);
+      if (imageType === "bannerImage" && formData.bannerImage) {
+        setFormData({ ...anime, bannerImage: "" });
       }
-      if (imageType === "featureImage" && featureImageUrl) {
-        await deleteObject(imageRef);
-        setBannerImageUrl(null);
-        setFeatureImageUrl(null);
+      if (imageType === "featureImage" && formData.featureImage) {
+        setFormData({ ...anime, featureImage: "" });
       }
-      if (imageType === "galleries" && galleriesUrl) {
-        await deleteObject(imageRef);
-        const newGalleries = galleriesUrl?.filter((imgUrl) => imgUrl !== url);
-        newGalleries && setGalleriesUrl(newGalleries);
+      if (imageType === "galleries" && formData.galleries) {
+        const newGalleries = [...formData.galleries].filter(
+          (imgUrl) => imgUrl !== url
+        );
+        setFormData({ ...anime, galleries: newGalleries });
       }
+      setUploadStatus("delete_success");
+      dispatch(getAnimeById(`${params.id}`));
     } catch (error) {
       console.log(error);
     }
   };
 
-  const addAnimeHandler = async (e: any) => {
+  const updateAnimeHandler = async (e: any) => {
     e.preventDefault();
-
     const {
       title,
-      category,
-      genre,
-      region,
       directedBy,
       releaseYear,
       description,
+      coverImage,
+      bannerImage,
+      featureImage,
+      galleries,
     } = formData;
 
     if (
-      coverImageUrl === null ||
-      bannerImageUrl === null ||
-      featureImageUrl === null ||
-      galleriesUrl === null ||
+      !coverImage ||
+      !bannerImage ||
+      !featureImage ||
+      galleries.length === 0 ||
       !title ||
       !directedBy ||
       !releaseYear ||
@@ -206,35 +208,11 @@ function AddAnimePage() {
       setMessage("Please make sure filling all the input filed.");
       setIsOpen(true);
     } else {
-      setUploadStatus("creating");
       const getSlug = title.split(" ").join("-");
-      const docId = getSlug.concat(`-${String(timestamp)}`);
-
-      await setDoc(doc(db, "anime_list", docId), {
-        id: docId,
-        title,
-        category,
-        genre,
-        region,
-        directedBy,
-        releaseYear,
-        description,
-        likes: 0,
-        slug: getSlug,
-        contributedBy: user?.uid,
-        coverImage: coverImageUrl,
-        bannerImage: bannerImageUrl,
-        featureImage: featureImageUrl,
-        galleries: galleriesUrl,
-      });
-
-      setCoverImageUrl(null);
-      setBannerImageUrl(null);
-      setFeatureImageUrl(null);
-      setGalleriesUrl(null);
-      setFormData(defaultFormData);
-      setUploadStatus("idle");
-      navigator("/categories");
+      dispatch(updateAnime({ ...formData, slug: getSlug }));
+      if (status === "update_success") {
+        navigator("/profile");
+      }
     }
   };
 
@@ -249,7 +227,7 @@ function AddAnimePage() {
         message={message}
         type={"error"}
       />
-      <Hero heroType="heroSub" height="300px" bgImage={"/images/bg_galaxy.png"}>
+      <Hero heroType="heroSub" height="300px" bgImage={`${anime.bannerImage}`}>
         <Container className="flex h-full flex-col items-start justify-center space-y-4">
           <div className="mb-4 w-full">
             <div
@@ -263,7 +241,7 @@ function AddAnimePage() {
 
           <div className="flex w-full flex-col items-center space-y-3">
             <Text as="h2" className="font-title text-sky-500">
-              {"Add Anime"}
+              {"Edit Anime"}
             </Text>
           </div>
         </Container>
@@ -273,7 +251,7 @@ function AddAnimePage() {
           <SectionTitle title="My Animes" />
           <form
             className="h-fit w-full rounded-2xl bg-slate-800 px-6  py-6"
-            onSubmit={addAnimeHandler}
+            onSubmit={updateAnimeHandler}
           >
             <div className="w-full">
               <div className="flex w-full gap-x-4">
@@ -289,7 +267,7 @@ function AddAnimePage() {
                     className="w-full rounded-3xl border border-slate-900 bg-slate-700 px-[1em] py-[0.4em] placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-sky-500"
                     type="text"
                     name="title"
-                    value={title}
+                    value={formData.title}
                     placeholder="Anime Title"
                     onChange={handleValueChange}
                   />
@@ -307,7 +285,7 @@ function AddAnimePage() {
                     className="w-full rounded-3xl border border-slate-900 bg-slate-700 px-[1em] py-[.6em] placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-sky-500"
                     id="grid-state"
                     name="category"
-                    value={category}
+                    value={formData.category}
                     onChange={handleValueChange}
                   >
                     <option>Uncategoried</option>
@@ -328,7 +306,7 @@ function AddAnimePage() {
                     className="w-full rounded-3xl border border-slate-900 bg-slate-700 px-[1em] py-[.6em] placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-sky-500"
                     id="grid-state"
                     name="genre"
-                    value={genre}
+                    value={formData.genre}
                     onChange={handleValueChange}
                   >
                     <option>Unknown</option>
@@ -353,7 +331,7 @@ function AddAnimePage() {
                     className="w-full rounded-3xl border border-slate-900 bg-slate-700 px-[1em] py-[.6em] placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-sky-500"
                     id="grid-state"
                     name="region"
-                    value={region}
+                    value={formData.region}
                     onChange={handleValueChange}
                   >
                     <option>Unknown</option>
@@ -375,7 +353,7 @@ function AddAnimePage() {
                     type="text"
                     placeholder="Directed By"
                     name="directedBy"
-                    value={directedBy}
+                    value={formData.directedBy}
                     onChange={handleValueChange}
                   />
                 </div>
@@ -393,7 +371,7 @@ function AddAnimePage() {
                     type="text"
                     placeholder="Release Year"
                     name="releaseYear"
-                    value={releaseYear}
+                    value={formData.releaseYear}
                     onChange={handleValueChange}
                   />
                 </div>
@@ -414,7 +392,7 @@ function AddAnimePage() {
                     rows={10}
                     placeholder="Description"
                     name="description"
-                    value={description}
+                    value={formData.description}
                     onChange={handleValueChange}
                   />
                 </div>
@@ -423,7 +401,7 @@ function AddAnimePage() {
               <div className="flex w-full gap-x-4">
                 <div className="my-2 w-full space-y-1 ">
                   <div className="mx-auto mb-2 w-[90%] rounded-md border-[1px] border-slate-700 py-4">
-                    {coverImageUrl === null ? (
+                    {formData.coverImage === "" ? (
                       <div className="relative">
                         {uploadStatus === "uploading_coverImage" && (
                           <div className="absolute left-[50%] top-[50%] flex translate-y-[-50%] translate-x-[-50%] items-center justify-center">
@@ -440,14 +418,14 @@ function AddAnimePage() {
                       <div className="relative mx-auto h-[200px]">
                         <img
                           className="mx-auto mb-4 h-full"
-                          src={`${coverImageUrl}`}
+                          src={`${formData.coverImage}`}
                           alt="cover_image"
                         />
                         <button
                           type="button"
                           className="absolute top-0 right-4 rounded bg-slate-500/50 p-1 text-3xl text-red-600 transition hover:bg-slate-400/50"
                           onClick={() =>
-                            deleteImage("coverImage", coverImageUrl)
+                            deleteImage("coverImage", formData.coverImage)
                           }
                         >
                           <MdDelete />
@@ -473,7 +451,7 @@ function AddAnimePage() {
                 {/* ==================== BANNER IMAGE ====================== */}
                 <div className="my-2 w-full space-y-1 ">
                   <div className="mx-auto mb-2 w-[90%] rounded-md border-[1px] border-slate-700 py-4">
-                    {bannerImageUrl === null ? (
+                    {formData.bannerImage === "" ? (
                       <div className="relative">
                         {uploadStatus === "uploading_bannerImage" && (
                           <div className="absolute left-[50%] top-[50%] flex translate-y-[-50%] translate-x-[-50%] items-center justify-center">
@@ -490,14 +468,14 @@ function AddAnimePage() {
                       <div className="relative mx-auto h-[200px]">
                         <img
                           className="mx-auto mb-4 h-full"
-                          src={`${bannerImageUrl}`}
+                          src={`${formData.bannerImage}`}
                           alt="image_placeholder"
                         />
                         <button
                           type="button"
                           className="absolute top-0 right-4 rounded bg-slate-500/50 p-1 text-3xl text-red-600 transition hover:bg-slate-400/50"
                           onClick={() =>
-                            deleteImage("bannerImage", bannerImageUrl)
+                            deleteImage("bannerImage", formData.bannerImage)
                           }
                         >
                           <MdDelete />
@@ -523,7 +501,7 @@ function AddAnimePage() {
                 {/* =================== FEATURE IMAGE ===================== */}
                 <div className="my-2 w-full space-y-1 ">
                   <div className="mx-auto mb-2 w-[90%] rounded-md border-[1px] border-slate-700 py-4">
-                    {featureImageUrl === null ? (
+                    {formData.featureImage === "" ? (
                       <div className="relative">
                         {uploadStatus === "uploading_featureImage" && (
                           <div className="absolute left-[50%] top-[50%] flex translate-y-[-50%] translate-x-[-50%] items-center justify-center">
@@ -540,14 +518,14 @@ function AddAnimePage() {
                       <div className="relative mx-auto h-[200px]">
                         <img
                           className="mx-auto mb-4 h-full"
-                          src={`${featureImageUrl}`}
+                          src={`${formData.featureImage}`}
                           alt="image_placeholder"
                         />
                         <button
                           type="button"
                           className="absolute top-0 right-4 rounded bg-slate-500/50 p-1 text-3xl text-red-600 transition hover:bg-slate-400/50"
                           onClick={() =>
-                            deleteImage("featureImage", featureImageUrl)
+                            deleteImage("featureImage", formData.featureImage)
                           }
                         >
                           <MdDelete />
@@ -580,28 +558,27 @@ function AddAnimePage() {
                     </div>
                   )}
                   <div className="grid grid-cols-4">
-                    {galleriesUrl &&
-                      galleriesUrl.map((img) => (
-                        <div
-                          className="mx-auto mb-2 w-[90%] rounded-md border-[1px] border-slate-700 py-4"
-                          key={img}
-                        >
-                          <div className="relative mx-auto h-[200px]">
-                            <img
-                              className="mx-auto mb-4 h-full w-auto"
-                              src={`${img}`}
-                              alt="image_placeholder"
-                            />
-                            <button
-                              type="button"
-                              className="absolute top-0 right-4 rounded bg-slate-500/50 p-1 text-3xl text-red-600 transition hover:bg-slate-400/50"
-                              onClick={() => deleteImage("galleries", img)}
-                            >
-                              <MdDelete />
-                            </button>
-                          </div>
+                    {formData.galleries.map((img) => (
+                      <div
+                        className="mx-auto mb-2 w-[90%] rounded-md border-[1px] border-slate-700 py-4"
+                        key={img}
+                      >
+                        <div className="relative mx-auto h-[200px]">
+                          <img
+                            className="mx-auto mb-4 h-full w-auto"
+                            src={`${img}`}
+                            alt="gallery_image"
+                          />
+                          <button
+                            type="button"
+                            className="absolute top-0 right-4 rounded bg-slate-500/50 p-1 text-3xl text-red-600 transition hover:bg-slate-400/50"
+                            onClick={() => deleteImage("galleries", img)}
+                          >
+                            <MdDelete />
+                          </button>
                         </div>
-                      ))}
+                      </div>
+                    ))}
                   </div>
 
                   <Text
@@ -627,9 +604,9 @@ function AddAnimePage() {
                 <input
                   className="btn btn-primary min-w-[200px]  disabled:cursor-not-allowed disabled:bg-sky-600 disabled:hover:bg-sky-600 disabled:hover:text-slate-900"
                   type="submit"
-                  value={uploadStatus === "creating" ? "Creating..." : "Create"}
+                  value={status === "loading_update" ? "Updating..." : "Update"}
                   disabled={
-                    uploadStatus === "creating" ||
+                    status === "loading_update" ||
                     uploadStatus === "uploading_featureImage" ||
                     uploadStatus === "uploading_coverImage" ||
                     uploadStatus === "uploading_bannerImage" ||
@@ -646,4 +623,4 @@ function AddAnimePage() {
     </Layout>
   );
 }
-export default AddAnimePage;
+export default EditAnimePage;

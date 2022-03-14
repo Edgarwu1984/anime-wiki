@@ -13,7 +13,7 @@ type AnimeListProps = {
 };
 
 const AnimeList = ({ data, status, layout, listType }: AnimeListProps) => {
-  const cardSkeletonList = [1, 2, 3, 4];
+  const cardSkeletonList = [1, 2, 3, 4, 5];
 
   const { user } = useAppSelector((state) => state.user);
 
@@ -114,7 +114,7 @@ const AnimeList = ({ data, status, layout, listType }: AnimeListProps) => {
       return (
         <div>
           {status === "loading" ? (
-            <div className="grid grid-cols-1 justify-items-center gap-12 md:grid-cols-3 lg:grid-cols-4 ">
+            <div className="grid grid-cols-1 justify-items-center gap-12 md:grid-cols-3  lg:grid-cols-5">
               {cardSkeletonList.map((_, i) => (
                 <CardSkeleton key={i} />
               ))}
@@ -136,7 +136,7 @@ const AnimeList = ({ data, status, layout, listType }: AnimeListProps) => {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 justify-items-center gap-12 md:grid-cols-3 lg:grid-cols-4 ">
+            <div className="grid grid-cols-1 justify-items-center gap-12 md:grid-cols-3 lg:grid-cols-5 ">
               {data.map((anime) => (
                 <Card
                   key={anime.id}
