@@ -17,6 +17,7 @@ import Layout from "src/components/Layout";
 import Hero from "src/components/Layout/Hero";
 import UserEditModal from "src/components/Modal/UserEditModal";
 import SectionTitle from "src/components/SectionTitle";
+import AlertModal from "src/components/Modal/AlertModal";
 
 function ProfilePage() {
   const navigator = useNavigate();
@@ -24,7 +25,9 @@ function ProfilePage() {
   const { user, userAnimes, userContribution } = useAppSelector(
     (state) => state.user
   );
-  const { status } = useAppSelector((state) => state.anime);
+  const { status, message, messageType } = useAppSelector(
+    (state) => state.anime
+  );
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -36,14 +39,21 @@ function ProfilePage() {
     if (user === null) {
       navigator("/");
     }
-
-    dispatch(getUserAnimeCollection(user?.uid));
-    dispatch(getUserContributions(user?.uid));
-  }, [dispatch, navigator, user]);
+    if (status === "delete_success" || status === "success") {
+      dispatch(getUserAnimeCollection(user?.uid));
+      dispatch(getUserContributions(user?.uid));
+    }
+  }, [dispatch, navigator, status, user]);
 
   return (
     <Layout pageTitle="Profile">
       <UserEditModal isOpen={isOpen} setIsOpen={setIsOpen} user={user} />
+      <AlertModal
+        isOpen={message ? true : false}
+        setIsOpen={setIsOpen}
+        message={message}
+        type={messageType}
+      />
       <Hero heroType="heroSub" height="300px" bgImage="/images/bg_galaxy.png">
         <Container className="flex h-full flex-col items-start justify-center space-y-4">
           <div className="mb-4 w-full">

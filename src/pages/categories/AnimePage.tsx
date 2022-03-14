@@ -22,6 +22,7 @@ import { CgSpinnerTwo } from "react-icons/cg";
 import { MdArrowBackIosNew } from "react-icons/md";
 // Utils
 import ResetPagePosition from "src/utils/resetPagePosition";
+import Loader from "src/components/Loader";
 
 const AnimePage = () => {
   const params = useParams();
@@ -66,7 +67,9 @@ const AnimePage = () => {
     }
   };
 
-  return (
+  return status === "loading" ? (
+    <Loader />
+  ) : (
     <Layout pageTitle={`${anime.title}`}>
       {AnimeMessage && (
         <AlertModal

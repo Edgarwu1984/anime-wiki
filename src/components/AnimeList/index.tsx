@@ -22,7 +22,8 @@ const AnimeList = ({ data, status, layout, listType }: AnimeListProps) => {
     case "column":
       return (
         <div>
-          {status === "loading" ? (
+          {status === "loading" ||
+          (listType === "contribution_list" && status === "loading_delete") ? (
             <div className="w-full">
               <CardSkeleton type="column" />
             </div>
@@ -79,18 +80,32 @@ const AnimeList = ({ data, status, layout, listType }: AnimeListProps) => {
           ) : (
             <div className="flex flex-col space-y-4">
               {data &&
-                data.map((anime) => (
-                  <Card
-                    key={anime.id}
-                    cardType="column"
-                    id={anime.id}
-                    slug={anime.slug}
-                    title={anime.title}
-                    releaseYear={anime.releaseYear}
-                    coverImage={anime.coverImage}
-                    likes={anime.likes}
-                  />
-                ))}
+                data.map((anime) =>
+                  listType === "contribution_list" ? (
+                    <Card
+                      key={anime.id}
+                      cardType="column"
+                      id={anime.id}
+                      slug={anime.slug}
+                      title={anime.title}
+                      releaseYear={anime.releaseYear}
+                      coverImage={anime.coverImage}
+                      likes={anime.likes}
+                      hasButton={true}
+                    />
+                  ) : (
+                    <Card
+                      key={anime.id}
+                      cardType="column"
+                      id={anime.id}
+                      slug={anime.slug}
+                      title={anime.title}
+                      releaseYear={anime.releaseYear}
+                      coverImage={anime.coverImage}
+                      likes={anime.likes}
+                    />
+                  )
+                )}
             </div>
           )}
         </div>

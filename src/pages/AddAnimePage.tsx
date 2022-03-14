@@ -233,7 +233,7 @@ function AddAnimePage() {
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         message={message}
-        type="success"
+        type="error"
       />
       <Hero heroType="heroSub" height="300px" bgImage="/images/bg_galaxy.png">
         <Container className="flex h-full flex-col items-start justify-center space-y-4">

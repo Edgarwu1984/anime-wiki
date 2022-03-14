@@ -3,8 +3,11 @@ import { Link } from "react-router-dom";
 import Text from "src/components/common/Text";
 // React Icons
 import { FaRegClock } from "react-icons/fa";
+import { MdModeEdit, MdDelete } from "react-icons/md";
 // Types
 import { Anime } from "src/types/AnimeTypes";
+import { useAppDispatch } from "src/app/store";
+import { deleteAnimeById } from "src/features/anime/animeSlice";
 
 type CardProps = Omit<
   Anime,
@@ -21,6 +24,7 @@ type CardProps = Omit<
 
 type ExtraProps = {
   cardType?: "column";
+  hasButton?: boolean;
 };
 
 type UnionCardProps = CardProps & ExtraProps;
@@ -33,10 +37,56 @@ const Card = ({
   coverImage,
   likes,
   cardType,
+  hasButton = false,
 }: UnionCardProps) => {
+  const dispatch = useAppDispatch();
+
+  const handleDelete = async (id: string) => {
+    dispatch(deleteAnimeById(id));
+  };
+
   switch (cardType) {
     case "column":
-      return (
+      return hasButton ? (
+        <div className=" relative h-24 rounded-xl bg-slate-700 bg-gradient-to-r from-slate-900/95 to-sky-700/75 p-4 shadow-md shadow-slate-900 transition hover:brightness-110">
+          <div className=" z-20 h-full">
+            <Link to={`/categories/${id}`} className="mb-2">
+              <Text
+                as="h5"
+                className="card-title font-title text-lg capitalize"
+              >
+                {title}
+              </Text>
+            </Link>
+            <div className="flex items-center space-x-2 text-slate-400">
+              <FaRegClock />
+              <Text>{releaseYear}</Text>
+            </div>
+          </div>
+          <div className="absolute right-0 top-0 h-full w-[33%] overflow-hidden rounded-xl">
+            <div className="absolute h-full w-full bg-gradient-to-r from-sky-900 to-sky-400/40" />
+            <img
+              className="h-auto w-full object-cover object-center"
+              src={`${coverImage}`}
+              alt={slug}
+            />
+          </div>
+          {hasButton && (
+            <div className="absolute right-6 top-[50%] flex translate-y-[-50%] space-x-5">
+              <div className="cursor-pointer rounded-xl bg-slate-800 p-2 text-2xl text-emerald-500 transition hover:bg-slate-700">
+                <MdModeEdit />
+              </div>
+
+              <div
+                className="cursor-pointer rounded-xl bg-slate-800 p-2 text-2xl text-red-500 transition hover:bg-slate-700"
+                onClick={() => handleDelete(id)}
+              >
+                <MdDelete />
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
         <Link
           to={`/categories/${id}`}
           className=" relative h-24 rounded-xl bg-slate-700 bg-gradient-to-r from-slate-900/95 to-sky-700/75 p-4 shadow-md shadow-slate-900 transition hover:brightness-110"

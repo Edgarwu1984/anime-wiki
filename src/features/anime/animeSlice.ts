@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { User } from "firebase/auth";
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -11,10 +12,11 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
-import { db } from "src/config/db";
+import { deleteObject, ref } from "firebase/storage";
+import { db, storage } from "src/config/db";
 import { Anime, InitialAnimeState } from "src/types/AnimeTypes";
-import { UserDoc } from "src/types/UserTypes";
-import { getUserAnimeCollection, getUserDoc } from "../user/userSlice";
+import { InitialUserStateTypes, UserDoc } from "src/types/UserTypes";
+import { getUserContributions, getUserDoc } from "../user/userSlice";
 
 export const getAnimes = createAsyncThunk(
   "animes/getAnimes",
@@ -39,7 +41,7 @@ export const getAnimes = createAsyncThunk(
 
 export const getTopAnimes = createAsyncThunk(
   "animes/getTopAnimes",
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, dispatch }) => {
     try {
       const ref = query(
         collection(db, "anime_list"),
@@ -93,6 +95,50 @@ export const getAnimeById = createAsyncThunk(
         const anime = animeSnapshot.data();
         return anime as Anime;
       }
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteAnimeById = createAsyncThunk(
+  "animes/deleteAnimeById",
+  async (id: string, { dispatch, getState, rejectWithValue }) => {
+    const { user } = getState() as InitialUserStateTypes;
+
+    try {
+      const animeRef = doc(db, "anime_list", id);
+      const animeSnapshot = await getDoc(animeRef);
+      const anime = animeSnapshot.data() as Anime;
+
+      const coverImage = anime.coverImage.split("images%2F")[1].split("?")[0];
+      const bannerImage = anime.bannerImage.split("images%2F")[1].split("?")[0];
+      const featureImage = anime.featureImage
+        .split("images%2F")[1]
+        .split("?")[0];
+
+      const coverImageRef = ref(storage, `images/${coverImage}`);
+      const bannerImageRef = ref(storage, `images/${bannerImage}`);
+      const featureImageRef = ref(storage, `images/${featureImage}`);
+      if (coverImageRef || bannerImageRef || featureImageRef) {
+        await deleteObject(coverImageRef);
+        await deleteObject(bannerImageRef);
+        await deleteObject(featureImageRef);
+      }
+      for (let i = 0; i < anime.galleries.length; i++) {
+        const galleryImage = anime.galleries[i]
+          .split("images%2F")[1]
+          .split("?")[0];
+        const galleryImageRef = ref(storage, `images/${galleryImage}`);
+        if (galleryImageRef) {
+          await deleteObject(galleryImageRef);
+        }
+      }
+
+      await deleteDoc(animeRef);
+      dispatch(setMessageType("success"));
+      dispatch(setMessage("Anime has been deleted."));
+      dispatch(getUserContributions(user?.uid));
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
@@ -244,6 +290,17 @@ export const animeSlice = createSlice({
         state.anime = action.payload as Anime;
       })
       .addCase(getAnimeById.rejected, (state, action) => {
+        state.status = "error";
+        state.message = action.payload as string;
+        state.messageType = "error";
+      })
+      .addCase(deleteAnimeById.pending, (state) => {
+        state.status = "loading_delete";
+      })
+      .addCase(deleteAnimeById.fulfilled, (state) => {
+        state.status = "delete_success";
+      })
+      .addCase(deleteAnimeById.rejected, (state, action) => {
         state.status = "error";
         state.message = action.payload as string;
         state.messageType = "error";

@@ -24,6 +24,8 @@ export interface InitialAnimeState {
     | "success"
     | "error"
     | "idle"
+    | "loading_delete"
+    | "delete_success"
     | "loading_like"
     | "like_success";
   isLoaded: boolean;
