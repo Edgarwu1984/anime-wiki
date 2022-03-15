@@ -18,6 +18,7 @@ export interface Anime {
 
 export interface InitialAnimeState {
   animes: Anime[];
+  topAnimes: Anime[];
   anime: Anime;
   status:
     | "loading"

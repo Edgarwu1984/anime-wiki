@@ -20,7 +20,7 @@ import ResetPagePosition from "src/utils/resetPagePosition";
 const HomePage = () => {
   const { pathname } = useLocation();
   const dispatch = useAppDispatch();
-  const { animes, status } = useAppSelector((state) => state.anime);
+  const { animes, topAnimes, status } = useAppSelector((state) => state.anime);
 
   ResetPagePosition(pathname);
 
@@ -71,7 +71,7 @@ const HomePage = () => {
         </section>
         <section>
           <SectionTitle title="Top Rated" />
-          <AnimeList data={animes} status={status} />
+          <AnimeList data={topAnimes} status={status} />
         </section>
       </Container>
     </Layout>

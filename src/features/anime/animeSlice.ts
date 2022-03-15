@@ -125,14 +125,14 @@ export const deleteAnimeById = createAsyncThunk(
 
     try {
       const animeRef = doc(db, "anime_list", id);
-      await deleteDoc(animeRef);
-
       const animeSnapshot = await getDoc(animeRef);
       const anime = animeSnapshot.data() as Anime;
 
-      const coverImage = anime.coverImage.split("images%2F")[1].split("?")[0];
-      const bannerImage = anime.bannerImage.split("images%2F")[1].split("?")[0];
-      const featureImage = anime.featureImage
+      const coverImage = anime?.coverImage.split("images%2F")[1].split("?")[0];
+      const bannerImage = anime?.bannerImage
+        .split("images%2F")[1]
+        .split("?")[0];
+      const featureImage = anime?.featureImage
         .split("images%2F")[1]
         .split("?")[0];
 
@@ -154,6 +154,7 @@ export const deleteAnimeById = createAsyncThunk(
         }
       }
 
+      await deleteDoc(animeRef);
       dispatch(setMessageType("success"));
       dispatch(setMessage("Anime has been deleted."));
       dispatch(getUserContributions(user?.uid));
@@ -220,6 +221,7 @@ export const likeAnime = createAsyncThunk(
 
 const initialState = {
   animes: [],
+  topAnimes: [],
   anime: {
     id: "",
     slug: "",
@@ -293,7 +295,7 @@ export const animeSlice = createSlice({
       })
       .addCase(getTopAnimes.fulfilled, (state, action) => {
         state.status = "success";
-        state.animes = action.payload;
+        state.topAnimes = action.payload;
       })
       .addCase(getTopAnimes.rejected, (state, action) => {
         state.status = "error";

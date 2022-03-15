@@ -63,14 +63,14 @@ function EditAnimePage() {
     if (user === null) {
       navigator("/");
     }
-  }, [dispatch, formData, navigator, uploadStatus, user]);
-
-  useEffect(() => {
-    if (params.id) {
+    if (anime.id !== params.id) {
       dispatch(getAnimeById(`${params.id}`));
-      setFormData((data) => ({ ...data, ...anime }));
     }
-  }, [anime, dispatch, params.id]);
+    setFormData(anime);
+    if (status === "update_success") {
+      navigator("/profile");
+    }
+  }, [anime, dispatch, navigator, status, params.id, user]);
 
   // Handle Input value change
   const handleValueChange = (e: any) => {
@@ -210,9 +210,6 @@ function EditAnimePage() {
     } else {
       const getSlug = title.split(" ").join("-");
       dispatch(updateAnime({ ...formData, slug: getSlug }));
-      if (status === "update_success") {
-        navigator("/profile");
-      }
     }
   };
 

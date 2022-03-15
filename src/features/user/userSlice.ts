@@ -173,11 +173,10 @@ export const getUserAnimeCollection = createAsyncThunk(
           collection(db, "anime_list"),
           where("id", "in", userDoc.animeCollections)
         );
+
         const querySnapshot = await getDocs(animeRef);
 
-        if (querySnapshot.empty) {
-          return;
-        } else {
+        if (!querySnapshot.empty) {
           const data = querySnapshot.docs.map((doc) => {
             const id = doc.id;
             const data = doc.data();
