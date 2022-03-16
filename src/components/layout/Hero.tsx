@@ -36,7 +36,7 @@ const Hero = ({
     case "heroSub":
       return (
         <div
-          className={`relative rounded-2xl bg-slate-800 h-[${height}]   z-0 overflow-hidden shadow-2xl shadow-slate-900`}
+          className={`relative rounded-2xl bg-slate-800 ${height} z-0 overflow-hidden shadow-2xl shadow-slate-900`}
         >
           <Navbar />
           <div className=" absolute -z-10 h-full w-full bg-gradient-to-tr from-slate-900/95 to-sky-700/75" />
