@@ -1,7 +1,7 @@
 import React, { Dispatch, Fragment, SetStateAction } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { MdClear } from "react-icons/md";
-import Button from "../common/Button";
+import Button from "src/components/common/Button";
 
 type Props = {
   isOpen: boolean;

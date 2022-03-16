@@ -1,12 +1,11 @@
-import { ComponentProps, ReactNode } from 'react';
-import { Link, LinkProps } from 'react-router-dom';
-import './button.css';
+import { ComponentProps, ReactNode } from "react";
+import { Link, LinkProps } from "react-router-dom";
 
 // Initialize the Base Props
 interface BaseProps {
   children: ReactNode | string;
-  className?: string | '';
-  size?: 'sm' | 'lg';
+  className?: string | "";
+  size?: "sm" | "lg";
 }
 
 /* 
@@ -17,18 +16,18 @@ Example: https://www.typescriptlang.org/docs/handbook/utility-types.html
 
 // 1).Button Type
 type ButtonAsButton = BaseProps &
-  Omit<ComponentProps<'button'>, keyof BaseProps> & {
-    as: 'button';
+  Omit<ComponentProps<"button">, keyof BaseProps> & {
+    as: "button";
   };
 
 // 2).React Link Type
 type ButtonAsLink = BaseProps &
-  Omit<LinkProps, keyof BaseProps> & { as: 'link' };
+  Omit<LinkProps, keyof BaseProps> & { as: "link" };
 
 // 3).Anchor Link Type
 type ButtonAsExternalLink = BaseProps &
-  Omit<ComponentProps<'a'>, keyof BaseProps> & {
-    as: 'externalLink';
+  Omit<ComponentProps<"a">, keyof BaseProps> & {
+    as: "externalLink";
   };
 
 // Combine all the types
@@ -36,14 +35,14 @@ type ButtonProps = ButtonAsButton | ButtonAsLink | ButtonAsExternalLink;
 
 const Button = (props: ButtonProps) => {
   // Destructuring BaseProps that we mainly needed.
-  const { children, className = '', as, size, ...rest } = props;
+  const { children, className = "", as, size, ...rest } = props;
 
   const btnSizeClassName =
-    size === 'sm' ? 'btn-sm' : size === 'lg' ? 'btn-lg' : '';
+    size === "sm" ? "btn-sm" : size === "lg" ? "btn-lg" : "";
 
   return (
     <>
-      {as === 'button' && (
+      {as === "button" && (
         // Need use the 'as' key word to specify props type for rest of the props
         <button
           className={`btn ${className} ${btnSizeClassName}`}
@@ -53,7 +52,7 @@ const Button = (props: ButtonProps) => {
           {children}
         </button>
       )}
-      {as === 'link' && (
+      {as === "link" && (
         <Link
           className={`btn ${className} ${btnSizeClassName}`}
           size={size}
@@ -62,11 +61,11 @@ const Button = (props: ButtonProps) => {
           {children}
         </Link>
       )}
-      {as === 'externalLink' && (
+      {as === "externalLink" && (
         <a
           className={`btn ${className} ${btnSizeClassName}`}
-          target='_blank'
-          rel='noreferrer'
+          target="_blank"
+          rel="noreferrer"
           size={size}
           {...(rest as ButtonAsExternalLink)}
         >

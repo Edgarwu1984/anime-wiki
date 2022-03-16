@@ -1,5 +1,4 @@
-import { ComponentProps, ElementType, ReactNode } from 'react';
-import './text.css';
+import { ComponentProps, ElementType, ReactNode } from "react";
 
 type TextOwnProps<E extends ElementType> = {
   children: ReactNode;
@@ -10,12 +9,12 @@ type TextOwnProps<E extends ElementType> = {
 type TextProps<E extends ElementType> = TextOwnProps<E> &
   Omit<ComponentProps<E>, keyof TextOwnProps<E>>;
 
-const Text = <E extends ElementType = 'div'>({
+const Text = <E extends ElementType = "div">({
   children,
   as,
   className,
 }: TextProps<E>) => {
-  const TextComponent = as || 'div';
+  const TextComponent = as || "div";
 
   return <TextComponent className={className}>{children}</TextComponent>;
 };

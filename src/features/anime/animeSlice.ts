@@ -16,7 +16,7 @@ import { deleteObject, ref } from "firebase/storage";
 import { db, storage } from "src/config/db";
 import { Anime, InitialAnimeState } from "src/types/AnimeTypes";
 import { InitialUserStateTypes, UserDoc } from "src/types/UserTypes";
-import { getUserContributions, getUserDoc } from "../user/userSlice";
+import { getUserContributions, getUserDoc } from "src/features/user/userSlice";
 
 export const getAnimes = createAsyncThunk(
   "animes/getAnimes",

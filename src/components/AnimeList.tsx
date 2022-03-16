@@ -1,8 +1,8 @@
 import { Anime, InitialAnimeState } from "src/types/AnimeTypes";
 import Card from "src/components/Card";
 import Text from "src/components/common/Text";
-import CardSkeleton from "./Loader/CardSkeleton";
-import Button from "./common/Button";
+import CardSkeleton from "src/components/Loader/CardSkeleton";
+import Button from "src/components/common/Button";
 import { useAppSelector } from "src/app/store";
 
 type AnimeListProps = {

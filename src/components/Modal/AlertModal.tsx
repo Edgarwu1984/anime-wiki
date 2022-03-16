@@ -1,8 +1,8 @@
 import { Fragment, Dispatch, SetStateAction } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { MdErrorOutline, MdCheckCircleOutline } from "react-icons/md";
-import Button from "../common/Button";
-import Text from "../common/Text";
+import Button from "src/components/common/Button";
+import Text from "src/components/common/Text";
 import { useAppDispatch } from "src/app/store";
 import { setMessage as setAnimeMessage } from "src/features/anime/animeSlice";
 import { setMessage as setUserMessage } from "src/features/user/userSlice";

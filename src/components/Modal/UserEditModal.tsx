@@ -2,8 +2,8 @@ import { Fragment, Dispatch, SetStateAction, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { User } from "firebase/auth";
 import { useAppDispatch } from "src/app/store";
-import Text from "../common/Text";
-import Button from "../common/Button";
+import Text from "src/components/common/Text";
+import Button from "src/components/common/Button";
 import { updateUserProfile } from "src/features/user/userSlice";
 
 type Props = {
