@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from "src/app/store";
 import { getAnimes } from "src/features/anime/animeSlice";
 // Components
 import Text from "src/components/common/Text";
-import FeatureCardSkeleton from "../Loader/FeatureCardSkeleton";
+import FeatureCardSkeleton from "./Loader/FeatureCardSkeleton";
 
 type FeatureCardProps = {
   imagePosition: "left" | "right";
