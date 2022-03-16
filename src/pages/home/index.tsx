@@ -20,7 +20,7 @@ import ResetPagePosition from "src/utils/resetPagePosition";
 const HomePage = () => {
   const { pathname } = useLocation();
   const dispatch = useAppDispatch();
-  const { animes, topAnimes, status } = useAppSelector((state) => state.anime);
+  const { topAnimes, status } = useAppSelector((state) => state.anime);
 
   ResetPagePosition(pathname);
 

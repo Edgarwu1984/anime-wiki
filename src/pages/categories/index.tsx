@@ -74,7 +74,7 @@ const CategoriesPage = () => {
         </Container>
       </Hero>
       <Container>
-        <SectionTitle title="Top Rated" />
+        <SectionTitle title="Animes" />
         <AnimeList data={animes} status={status} />
       </Container>
     </Layout>

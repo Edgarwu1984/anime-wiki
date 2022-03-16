@@ -91,6 +91,7 @@ export const updateAnime = createAsyncThunk(
       } else {
         const animeRef = doc(db, "anime_list", data.id);
         await updateDoc(animeRef, { ...data });
+        dispatch(getAnimeById(data.id));
       }
     } catch (error: any) {
       return rejectWithValue(error.message);

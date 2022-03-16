@@ -8,15 +8,19 @@ import {
   deleteObject,
 } from "firebase/storage";
 import { db, storage } from "src/config/db";
-import { doc, setDoc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
 // DEPENDENCIES
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ThreeDots } from "react-loader-spinner";
 // REACT ICONS
 import { MdArrowBackIosNew, MdDelete } from "react-icons/md";
 // REDUX
 import { useAppDispatch, useAppSelector } from "src/app/store";
-import { getAnimeById, updateAnime } from "src/features/anime/animeSlice";
+import {
+  getAnimeById,
+  setAnime,
+  updateAnime,
+} from "src/features/anime/animeSlice";
 // COMPONENTS
 import Container from "src/components/common/Container";
 import Text from "src/components/common/Text";
@@ -62,15 +66,19 @@ function EditAnimePage() {
   useEffect(() => {
     if (user === null) {
       navigator("/");
+    } else {
+      if (anime.id !== params.id) {
+        dispatch(getAnimeById(`${params.id}`));
+      }
     }
-    if (anime.id !== params.id) {
-      dispatch(getAnimeById(`${params.id}`));
-    }
-    setFormData(anime);
     if (status === "update_success") {
       navigator("/profile");
     }
-  }, [anime, dispatch, navigator, status, params.id, user]);
+  }, [anime.id, dispatch, navigator, status, params.id, user, uploadStatus]);
+
+  useEffect(() => {
+    setFormData(anime);
+  }, []);
 
   // Handle Input value change
   const handleValueChange = (e: any) => {
@@ -92,22 +100,19 @@ function EditAnimePage() {
         if ((await uploadTask).state === "success") {
           const url = await getDownloadURL(uploadTask.snapshot.ref);
           const targetName = e.target.name;
-          let newImageUrl = "";
+
           if (targetName === "coverImage") {
-            newImageUrl = formData.coverImage = url;
-            setFormData({ ...formData, coverImage: newImageUrl });
+            setFormData({ ...formData, coverImage: url });
           } else if (targetName === "bannerImage") {
-            newImageUrl = formData.bannerImage = url;
             setFormData({ ...formData, bannerImage: url });
           } else if (targetName === "featureImage") {
-            newImageUrl = formData.featureImage = url;
-            setFormData({ ...formData, featureImage: newImageUrl });
+            setFormData({ ...formData, featureImage: url });
           }
 
-          setUploadStatus("upload_success");
+          // dispatch(updateAnime(formData));
+          setUploadStatus("upload_idle");
           e.target.value = "";
         }
-        dispatch(updateAnime(formData));
       }
     } catch (error) {
       console.log(error);
@@ -145,7 +150,7 @@ function EditAnimePage() {
         galleries: (formData.galleries = galleryArray),
       });
       dispatch(updateAnime(formData));
-      setUploadStatus("uploading_idle");
+      setUploadStatus("upload_idle");
       e.target.value = "";
     }
   };
@@ -156,29 +161,31 @@ function EditAnimePage() {
   ) => {
     try {
       const storage = getStorage();
+      const animeRef = doc(db, "anime_list", anime.id);
+
       const imageName = url.split("images%2F")[1].split("?")[0];
       const imageRef = ref(storage, `images/${imageName}`);
-      await deleteObject(imageRef);
 
       if (imageType === "coverImage" && formData.coverImage) {
-        setFormData({ ...anime, coverImage: "" });
-      }
-      if (imageType === "bannerImage" && formData.bannerImage) {
-        setFormData({ ...anime, bannerImage: "" });
-      }
-      if (imageType === "featureImage" && formData.featureImage) {
-        setFormData({ ...anime, featureImage: "" });
-      }
-      if (imageType === "galleries" && formData.galleries) {
+        setFormData({ ...formData, coverImage: "" });
+        await deleteObject(imageRef);
+      } else if (imageType === "bannerImage" && formData.bannerImage) {
+        setFormData({ ...formData, bannerImage: "" });
+        await deleteObject(imageRef);
+      } else if (imageType === "featureImage" && formData.featureImage) {
+        setFormData({ ...formData, featureImage: "" });
+        await deleteObject(imageRef);
+      } else if (imageType === "galleries" && formData.galleries) {
         const newGalleries = [...formData.galleries].filter(
           (imgUrl) => imgUrl !== url
         );
-        setFormData({ ...anime, galleries: newGalleries });
+        setFormData({ ...formData, galleries: newGalleries });
+        await deleteObject(imageRef);
       }
-      setUploadStatus("delete_success");
-      dispatch(getAnimeById(`${params.id}`));
-    } catch (error) {
-      console.log(error);
+      await updateDoc(animeRef, { ...formData });
+      dispatch(setAnime(formData));
+    } catch (error: any) {
+      console.log(error.message);
     }
   };
 
