@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { BaseSyntheticEvent, ChangeEvent, useEffect, useState } from "react";
 // FIREBASE
 import {
   getStorage,
@@ -24,8 +24,8 @@ import {
 // COMPONENTS
 import Container from "src/components/common/Container";
 import Text from "src/components/common/Text";
-import Layout from "src/components/Layout";
-import Hero from "src/components/Layout/Hero";
+import Layout from "src/components/layout";
+import Hero from "src/components/layout/Hero";
 import SectionTitle from "src/components/SectionTitle";
 import AlertModal from "src/components/Modal/AlertModal";
 import Loader from "src/components/Loader";
@@ -81,7 +81,7 @@ function EditAnimePage() {
   }, []);
 
   // Handle Input value change
-  const handleValueChange = (e: any) => {
+  const handleValueChange = (e: BaseSyntheticEvent) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };

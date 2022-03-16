@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
+import Footer from "src/components/layout/Footer";
 // Components
-import Footer from "./Footer";
 
 type Props = {
   children: ReactNode;

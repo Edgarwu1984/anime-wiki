@@ -19,8 +19,8 @@ import { useAppSelector } from "src/app/store";
 // COMPONENTS
 import Container from "src/components/common/Container";
 import Text from "src/components/common/Text";
-import Layout from "src/components/Layout";
-import Hero from "src/components/Layout/Hero";
+import Layout from "src/components/layout";
+import Hero from "src/components/layout/Hero";
 import SectionTitle from "src/components/SectionTitle";
 import AlertModal from "src/components/Modal/AlertModal";
 import Loader from "src/components/Loader";

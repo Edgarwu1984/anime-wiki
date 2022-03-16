@@ -13,8 +13,8 @@ import {
 import AnimeList from "src/components/AnimeList";
 import Container from "src/components/common/Container";
 import Text from "src/components/common/Text";
-import Layout from "src/components/Layout";
-import Hero from "src/components/Layout/Hero";
+import Layout from "src/components/layout";
+import Hero from "src/components/layout/Hero";
 import UserEditModal from "src/components/Modal/UserEditModal";
 import SectionTitle from "src/components/SectionTitle";
 import AlertModal from "src/components/Modal/AlertModal";

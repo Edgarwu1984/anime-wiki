@@ -10,8 +10,8 @@ import {
 // Components
 import Container from "src/components/common/Container";
 import Text from "src/components/common/Text";
-import Layout from "src/components/Layout";
-import Hero from "src/components/Layout/Hero";
+import Layout from "src/components/layout";
+import Hero from "src/components/layout/Hero";
 import SectionTitle from "src/components/SectionTitle";
 import AlertModal from "src/components/Modal/AlertModal";
 import ImageModal from "src/components/Modal/ImageModal";
