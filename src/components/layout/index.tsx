@@ -7,7 +7,7 @@ type Props = {
   pageTitle?: string;
 };
 
-const Layout = ({ pageTitle, children }: Props) => {
+const Index = ({ pageTitle, children }: Props) => {
   document.title = !pageTitle ? `AnimeWiki` : `AnimeWiki - ${pageTitle}`;
 
   return (
@@ -18,4 +18,4 @@ const Layout = ({ pageTitle, children }: Props) => {
   );
 };
 
-export default Layout;
+export default Index;
