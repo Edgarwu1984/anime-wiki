@@ -20,7 +20,7 @@ import { getUserContributions, getUserDoc } from "src/features/user/userSlice";
 
 export const getAnimes = createAsyncThunk(
   "animes/getAnimes",
-  async (_, { dispatch, rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const ref = collection(db, "anime_list");
 
@@ -41,7 +41,7 @@ export const getAnimes = createAsyncThunk(
 
 export const getTopAnimes = createAsyncThunk(
   "animes/getTopAnimes",
-  async (_, { rejectWithValue, dispatch }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const ref = query(
         collection(db, "anime_list"),

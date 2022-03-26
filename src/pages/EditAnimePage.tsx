@@ -10,7 +10,7 @@ import {
 import { db, storage } from "src/config/db";
 import { doc, updateDoc } from "firebase/firestore";
 // DEPENDENCIES
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { ThreeDots } from "react-loader-spinner";
 // REACT ICONS
 import { MdArrowBackIosNew, MdDelete } from "react-icons/md";
@@ -31,6 +31,7 @@ import AlertModal from "src/components/Modal/AlertModal";
 import Loader from "src/components/Loader";
 // TYPES
 import { Anime } from "src/types/AnimeTypes";
+import ResetPagePosition from "src/utils/resetPagePosition";
 
 function EditAnimePage() {
   const defaultFormData: Anime = {
@@ -50,6 +51,7 @@ function EditAnimePage() {
     likes: 0,
     contributedBy: "",
   };
+  const { pathname } = useLocation();
   const params = useParams();
   const navigator = useNavigate();
   const dispatch = useAppDispatch();
@@ -59,6 +61,7 @@ function EditAnimePage() {
   const [uploadStatus, setUploadStatus] = useState<string>("uploading_idle");
   const [formData, setFormData] = useState<Anime>(defaultFormData);
   const [message, setMessage] = useState<string>("");
+  ResetPagePosition(pathname);
 
   // Generate timestamp
   const timestamp = Math.round(+new Date() / 1000);
@@ -69,16 +72,27 @@ function EditAnimePage() {
     } else {
       if (anime.id !== params.id) {
         dispatch(getAnimeById(`${params.id}`));
+      } else {
+        setFormData(anime);
       }
     }
     if (status === "update_success") {
       navigator("/profile");
     }
-  }, [anime.id, dispatch, navigator, status, params.id, user, uploadStatus]);
+  }, [
+    anime.id,
+    dispatch,
+    navigator,
+    status,
+    params.id,
+    user,
+    uploadStatus,
+    anime,
+  ]);
 
-  useEffect(() => {
-    setFormData(anime);
-  }, []);
+  // useEffect(() => {
+  //   setFormData(anime);
+  // }, []);
 
   // Handle Input value change
   const handleValueChange = (e: BaseSyntheticEvent) => {

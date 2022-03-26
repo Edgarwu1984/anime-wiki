@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 // REACT ICONS
 import { FaUserEdit } from "react-icons/fa";
 import { MdArrowBackIosNew } from "react-icons/md";
@@ -18,8 +18,10 @@ import Hero from "src/components/layout/Hero";
 import UserEditModal from "src/components/Modal/UserEditModal";
 import SectionTitle from "src/components/SectionTitle";
 import AlertModal from "src/components/Modal/AlertModal";
+import ResetPagePosition from "src/utils/resetPagePosition";
 
 function ProfilePage() {
+  const { pathname } = useLocation();
   const navigator = useNavigate();
   const dispatch = useAppDispatch();
   const { user, userAnimes, userContribution } = useAppSelector(
@@ -34,6 +36,8 @@ function ProfilePage() {
   const modalOpenHandler = () => {
     setIsOpen(true);
   };
+
+  ResetPagePosition(pathname);
 
   useEffect(() => {
     if (user === null) {
